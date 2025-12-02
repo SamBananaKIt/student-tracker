@@ -53,12 +53,6 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .glass-dark {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
         /* Animations */
         @keyframes slideUpFade {
             from {
@@ -134,6 +128,28 @@
             pointer-events: auto;
             animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Accordion Transitions */
+        .accordion-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .accordion-content.expanded {
+            max-height: 500px;
+            /* Arbitrary large height */
+            opacity: 1;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
         }
     </style>
 </head>
@@ -238,14 +254,14 @@
             </div>
 
             <!-- Mobile Card View -->
-            <div class="md:hidden p-4 space-y-4" id="mobileStudentList">
+            <div class="md:hidden p-4 space-y-3" id="mobileStudentList">
                 <!-- Cards injected here -->
             </div>
         </div>
 
         <!-- Footer -->
         <div class="mt-8 text-center text-slate-400 text-xs pb-20 md:pb-8">
-            <p class="opacity-50">ระบบติดตามงานค้าง v2.1 (Pro UI)</p>
+            <p class="opacity-50">ระบบติดตามงานค้าง v2.2 (Expandable Cards)</p>
         </div>
 
         <!-- Floating Action Button for Reset -->
@@ -574,6 +590,20 @@
             }
         }
 
+        // --- Expandable Card Logic ---
+        function toggleCard(studentId) {
+            const content = document.getElementById(`card-content-${studentId}`);
+            const chevron = document.getElementById(`chevron-${studentId}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('rotated');
+            }
+        }
+
         // --- Rendering Functions ---
         function renderTabs() {
             const container = document.getElementById('subjectTabs');
@@ -737,27 +767,39 @@
                 }
 
                 return `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 animate-entry" style="animation-delay: ${index * 0.05}s">
-                        <div class="flex justify-between items-start mb-3">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 animate-entry overflow-hidden" style="animation-delay: ${index * 0.05}s">
+                        <!-- Card Header (Always Visible) -->
+                        <div onclick="toggleCard(${s.id})" class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded-md font-mono">${index + 1}</span>
-                                <h3 class="font-bold text-slate-700">${s.name}</h3>
+                                <div>
+                                    <h3 class="font-bold text-slate-700">${s.name}</h3>
+                                    <div class="text-xs mt-0.5">
+                                        ${isComplete
+                        ? '<span class="text-teal-600 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> ครบถ้วน</span>'
+                        : `<span class="text-rose-500 font-bold">ค้าง ${missingInSubject.length} งาน</span>`
+                    }
+                                    </div>
+                                </div>
                             </div>
-                            <button onclick="removeStudent(${s.id})" class="btn-press text-slate-300 hover:text-rose-500 p-1">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="event.stopPropagation(); removeStudent(${s.id})" class="btn-press text-slate-300 hover:text-rose-500 p-2 rounded-full hover:bg-rose-50 transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                                <i id="chevron-${s.id}" data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-300"></i>
+                            </div>
                         </div>
                         
-                        <div class="grid grid-cols-4 gap-2 mb-3">
-                            ${workToggles}
-                        </div>
-
-                        <div class="text-xs pt-3 border-t border-slate-50 flex justify-between items-center">
-                            <span class="text-slate-400 font-medium">${currentSubject.name}</span>
-                            ${isComplete
-                        ? '<span class="text-teal-600 font-bold flex items-center gap-1 bg-teal-50 px-2 py-1 rounded-full shadow-sm"><i data-lucide="check-circle" class="w-3 h-3"></i> ครบถ้วน</span>'
-                        : `<span class="text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded-full border border-rose-100">ค้าง ${missingInSubject.length} งาน</span>`
-                    }
+                        <!-- Card Content (Collapsible) -->
+                        <div id="card-content-${s.id}" class="accordion-content bg-slate-50/50 border-t border-slate-100">
+                            <div class="p-4">
+                                <div class="grid grid-cols-4 gap-2">
+                                    ${workToggles}
+                                </div>
+                                <div class="text-[10px] text-slate-400 text-center mt-3">
+                                    แตะที่งานเพื่อเปลี่ยนสถานะ
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
