@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบติดตามงานค้าง</title>
+    <script>
+        // Suppress Tailwind CDN warning for cleaner console
+        const originalWarn = console.warn;
+        console.warn = (...args) => {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            originalWarn.apply(console, args);
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
@@ -230,7 +238,8 @@
             style="animation-delay: 0.1s;">
             <form id="addStudentForm" class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
-                    <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <label for="studentNameInput"
+                        class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
                         <i data-lucide="user-plus" class="w-4 h-4 text-teal-500"></i>
                         เพิ่มชื่อบุคคล
                     </label>
@@ -253,7 +262,7 @@
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
                 <input type="text" id="searchInput" oninput="renderApp()"
                     class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white shadow-sm"
-                    placeholder="ค้นหาชื่อนักเรียน...">
+                    placeholder="ค้นหาชื่อนักเรียน..." aria-label="ค้นหาชื่อนักเรียน">
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <div
@@ -983,10 +992,10 @@
 
                         <!-- Add Assignment Form -->
                         <form onsubmit="event.preventDefault(); addAssignment('${sub.id}', this.title.value, this.desc.value); this.reset();" class="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                            <input name="title" type="text" placeholder="ชื่องาน (เช่น งานที่ 1)" required
+                            <input name="title" type="text" placeholder="ชื่องาน (เช่น งานที่ 1)" required aria-label="ชื่องาน"
                                 class="w-full p-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all">
                             <div class="flex gap-2">
-                                <input name="desc" type="text" placeholder="รายละเอียด (เช่น สรุปบทที่ 1)" required
+                                <input name="desc" type="text" placeholder="รายละเอียด (เช่น สรุปบทที่ 1)" required aria-label="รายละเอียดงาน"
                                     class="flex-1 p-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all">
                                 <button type="submit" class="btn-press bg-slate-800 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-slate-700 shadow-md">เพิ่ม</button>
                             </div>
