@@ -3,56 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบติดตามงานค้าง</title>
-    <script>
-        // Suppress Tailwind CDN warning for cleaner console
-        const originalWarn = console.warn;
-        console.warn = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
-            originalWarn.apply(console, args);
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-
-    <!-- iOS / PWA Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Tracker">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
-
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        /* Custom Scrollbar for Tabs */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* --- Pro UI Animations & Effects --- */
 
         /* Glassmorphism */
         .glass {
@@ -63,33 +23,16 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
 
-        /* Scroll Mask for Tabs */
         .scroll-mask {
             mask-image: linear-gradient(to right, transparent, black 20px, black 90%, transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
         }
 
         /* Animations */
-        @keyframes slideUpFade {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
         @keyframes popIn {
             0% {
                 transform: scale(0.9);
                 opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.05);
             }
 
             100% {
@@ -98,29 +41,38 @@
             }
         }
 
-        @keyframes slideDown {
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes slideUp {
             from {
-                transform: translateY(-100%);
+                transform: translateY(20px);
+                opacity: 0;
             }
 
             to {
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
         .animate-entry {
-            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: slideUp 0.4s ease-out forwards;
+            opacity: 0;
         }
 
-        .animate-pop {
-            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Custom Scrollbar */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
 
-        /* Smooth Interactions */
-        .btn-press {
-            transition: transform 0.1s;
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
+        /* Button Press Effect */
         .btn-press:active {
             transform: scale(0.95);
         }
@@ -128,37 +80,61 @@
         /* Toast Notification */
         #toast-container {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            pointer-events: none;
-            width: 90%;
-            max-width: 400px;
         }
 
         .toast {
-            pointer-events: auto;
-            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-left: 4px solid #14b8a6;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease-out forwards;
+            min-width: 300px;
         }
 
-        /* Accordion Transitions (Smooth Grid) */
+        .toast.error {
+            border-left-color: #f43f5e;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+        /* Accordion Transition */
         .accordion-content {
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 0.3s ease-out;
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
         }
 
         .accordion-content.expanded {
-            grid-template-rows: 1fr;
-        }
-
-        .accordion-inner {
-            overflow: hidden;
+            max-height: 1000px;
+            opacity: 1;
         }
 
         .chevron {
@@ -167,6 +143,23 @@
 
         .chevron.rotated {
             transform: rotate(180deg);
+        }
+
+        /* Print Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .glass {
+                box-shadow: none;
+                border: none;
+                background: white;
+            }
         }
     </style>
 </head>
@@ -263,6 +256,14 @@
                 <input type="text" id="searchInput" oninput="renderApp()"
                     class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white shadow-sm"
                     placeholder="ค้นหาชื่อนักเรียน..." aria-label="ค้นหาชื่อนักเรียน">
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <select id="sortSelect" onchange="renderApp()"
+                    class="px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white shadow-sm text-sm font-bold text-slate-600 cursor-pointer">
+                    <option value="default">เรียงตามเลขที่ (เดิม)</option>
+                    <option value="most_missing">งานค้างมากสุด</option>
+                    <option value="least_missing">งานค้างน้อยสุด</option>
+                </select>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <div
@@ -417,6 +418,32 @@
             renderApp();
             const dateEl = document.getElementById('printDate');
             if (dateEl) dateEl.innerText = new Date().toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' });
+
+            // Add Student Form Listener
+            const addStudentForm = document.getElementById('addStudentForm');
+            if (addStudentForm) {
+                addStudentForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('studentNameInput');
+                    const name = input.value.trim();
+                    if (name) {
+                        const newId = appData.students.length > 0 ? Math.max(...appData.students.map(s => s.id)) + 1 : 1;
+                        // Default to all incomplete (missing all assignments)
+                        const allAssignmentIds = appData.subjects.flatMap(s => s.assignments.map(a => a.id));
+                        appData.students.push({ id: newId, name: name, missing: allAssignmentIds });
+
+                        saveData();
+                        renderApp();
+                        input.value = '';
+                        showToast(`เพิ่ม "${name}" เรียบร้อย`);
+
+                        // Scroll to bottom
+                        setTimeout(() => {
+                            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                        }, 100);
+                    }
+                });
+            }
         });
 
         // --- Core Functions ---
@@ -425,7 +452,6 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    // Validate structure
                     if (!parsed.subjects || !Array.isArray(parsed.subjects) || !parsed.students || !Array.isArray(parsed.students)) {
                         throw new Error('Invalid data structure');
                     }
@@ -461,7 +487,6 @@
             const currentSubject = appData.subjects.find(s => s.id === appData.currentSubjectId);
 
             if (student && currentSubject) {
-                // Remove all assignments of current subject from missing list
                 const assignmentIds = currentSubject.assignments.map(a => a.id);
                 student.missing = student.missing.filter(m => !assignmentIds.includes(m));
 
@@ -512,229 +537,15 @@
         }
 
         function renderApp() {
-            renderTabs();
-            renderTable();
-            renderMobileCards();
-            renderManageModal();
-            lucide.createIcons();
-        }
-
-        // --- Subject Management ---
-        function switchSubject(subjectId) {
-            if (appData.currentSubjectId === subjectId) return;
-            appData.currentSubjectId = subjectId;
-            saveData();
-            renderApp();
-        }
-
-        function handleAddSubject(e) {
-            e.preventDefault();
-            const input = document.getElementById('newSubjectInput');
-            const name = input.value.trim();
-            if (name) {
-                const newId = 'sub_' + Date.now();
-                appData.subjects.push({
-                    id: newId,
-                    name: name,
-                    assignments: []
-                });
-                appData.currentSubjectId = newId;
-                saveData();
-                input.value = '';
-                renderApp();
-                showToast(`เพิ่มวิชา "${name}" แล้ว`);
+            try {
+                renderTabs();
+                renderTable();
+                renderMobileCards();
+                renderManageModal();
+                lucide.createIcons();
+            } catch (e) {
+                console.error("Render Error:", e);
             }
-        }
-
-        function deleteSubject(subjectId) {
-            showConfirmModal(
-                'ลบวิชานี้?',
-                'ข้อมูลงานและการส่งงานของวิชานี้จะหายไปทั้งหมด',
-                () => {
-                    const subName = appData.subjects.find(s => s.id === subjectId)?.name;
-                    appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
-                    if (appData.currentSubjectId === subjectId) {
-                        appData.currentSubjectId = appData.subjects[0]?.id || '';
-                    }
-                    saveData();
-                    renderApp();
-                    showToast(`ลบวิชา "${subName}" แล้ว`, 'error');
-                }
-            );
-        }
-
-        function addAssignment(subjectId, title, desc) {
-            const subject = appData.subjects.find(s => s.id === subjectId);
-            if (subject) {
-                const newId = 'work_' + Date.now();
-                subject.assignments.push({ id: newId, title, desc });
-                saveData();
-                renderApp();
-                showToast('เพิ่มงานเรียบร้อย');
-            }
-        }
-
-        function deleteAssignment(subjectId, workId) {
-            showConfirmModal(
-                'ลบงานนี้?',
-                'ข้อมูลการส่งงานของนักเรียนทุกคนในงานนี้จะหายไป',
-                () => {
-                    const subject = appData.subjects.find(s => s.id === subjectId);
-                    if (subject) {
-                        subject.assignments = subject.assignments.filter(a => a.id !== workId);
-                        appData.students.forEach(s => {
-                            s.missing = s.missing.filter(id => id !== workId);
-                        });
-                        saveData();
-                        renderApp();
-                        showToast('ลบงานแล้ว', 'error');
-                    }
-                }
-            );
-        }
-
-        // --- Student Management ---
-                // Scroll to bottom
-                setTimeout(() => {
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }, 100);
-            }
-        });
-
-        function removeStudent(id) {
-            showConfirmModal(
-                'ลบรายชื่อนี้?',
-                'ข้อมูลการส่งงานของคนนี้จะหายไป',
-                () => {
-                    appData.students = appData.students.filter(s => s.id !== id);
-                    saveData();
-                    renderApp();
-                    showToast('ลบรายชื่อแล้ว', 'error');
-                }
-            );
-        }
-
-        function toggleMissing(studentId, workId) {
-            const student = appData.students.find(s => s.id === studentId);
-            if (student) {
-                if (student.missing.includes(workId)) {
-                    student.missing = student.missing.filter(id => id !== workId);
-                } else {
-                    student.missing.push(workId);
-                }
-                saveData();
-                renderApp();
-            }
-        }
-
-        // --- UI Utils (Toast & Modal) ---
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-
-            // Clear existing toasts to prevent stacking
-            container.innerHTML = '';
-
-            const toast = document.createElement('div');
-
-            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
-            const bgClass = type === 'success' ? 'bg-slate-800 text-white' : 'bg-rose-500 text-white';
-
-            toast.className = `toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl ${bgClass} min-w-[300px]`;
-            toast.innerHTML = `
-                <i data-lucide="${icon}" class="w-5 h-5"></i>
-                <span class="font-bold text-sm">${message}</span>
-            `;
-
-            container.appendChild(toast);
-            lucide.createIcons();
-
-            // Remove after 3s
-            setTimeout(() => {
-                if (toast.parentElement) {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        if (toast.parentElement) toast.remove();
-                    }, 300);
-                }
-            }, 3000);
-        }
-
-        function showConfirmModal(title, message, onConfirm) {
-            const modal = document.getElementById('confirmModal');
-            const backdrop = document.getElementById('confirmBackdrop');
-            const content = document.getElementById('confirmContent');
-            const titleEl = document.getElementById('confirmTitle');
-            const msgEl = document.getElementById('confirmMessage');
-            const okBtn = document.getElementById('confirmOkBtn');
-            const cancelBtn = document.getElementById('confirmCancelBtn');
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            // Animate In
-            setTimeout(() => {
-                backdrop.classList.remove('opacity-0');
-                content.classList.remove('opacity-0', 'scale-95');
-                content.classList.add('scale-100');
-            }, 10);
-
-            const close = () => {
-                backdrop.classList.add('opacity-0');
-                content.classList.add('opacity-0', 'scale-95');
-                content.classList.remove('scale-100');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
-            };
-
-            // Handlers
-            const handleOk = () => {
-                onConfirm();
-                close();
-                okBtn.removeEventListener('click', handleOk);
-            };
-
-            okBtn.onclick = handleOk;
-            cancelBtn.onclick = close;
-            backdrop.onclick = close;
-        }
-
-        // --- Modal Management ---
-        function openManageModal() {
-            const modal = document.getElementById('manageModal');
-            const backdrop = document.getElementById('manageBackdrop');
-            const content = document.getElementById('manageContent');
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            renderManageModal();
-
-            // Animate In
-            setTimeout(() => {
-                backdrop.classList.remove('opacity-0');
-                content.classList.remove('opacity-0', 'scale-95');
-                content.classList.add('scale-100');
-            }, 10);
-        }
-
-        function closeManageModal() {
-            const modal = document.getElementById('manageModal');
-            const backdrop = document.getElementById('manageBackdrop');
-            const content = document.getElementById('manageContent');
-
-            backdrop.classList.add('opacity-0');
-            content.classList.add('opacity-0', 'scale-95');
-            content.classList.remove('scale-100');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
         }
 
         // --- Render Functions ---
@@ -783,7 +594,27 @@
 
             // Render Rows
             const searchTerm = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
-            const filteredStudents = appData.students.filter(s => s.name.toLowerCase().includes(searchTerm));
+            const sortOption = document.getElementById('sortSelect')?.value || 'default';
+
+            let filteredStudents = appData.students.filter(s => s.name.toLowerCase().includes(searchTerm));
+
+            // Sorting Logic
+            if (sortOption === 'most_missing') {
+                filteredStudents.sort((a, b) => {
+                    const missingA = a.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    const missingB = b.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    return missingB - missingA;
+                });
+            } else if (sortOption === 'least_missing') {
+                filteredStudents.sort((a, b) => {
+                    const missingA = a.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    const missingB = b.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    return missingA - missingB;
+                });
+            } else {
+                // Default: Sort by ID
+                filteredStudents.sort((a, b) => a.id - b.id);
+            }
 
             // Update Counts
             const completeCount = filteredStudents.filter(s => s.missing.filter(m => currentSubject.assignments.some(a => a.id === m)).length === 0).length;
@@ -825,7 +656,7 @@
                                 </label>
                             </td>
                         `).join('')}
-                        <td class="p-4">
+            <td class="p-4">
                             ${isComplete
                         ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-600 text-xs font-bold border border-teal-100"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ครบถ้วน</span>'
                         : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100"><i data-lucide="alert-circle" class="w-3 h-3"></i> ขาด ${missingCount}</span>`
@@ -835,6 +666,9 @@
                             <button onclick="markAllComplete(${s.id})" class="text-slate-300 hover:text-teal-500 transition-colors opacity-0 group-hover:opacity-100 p-2 hover:bg-teal-50 rounded-lg" title="ส่งครบทุกงาน">
                                 <i data-lucide="check-check" class="w-4 h-4"></i>
                             </button>
+                            <button onclick="editStudent(${s.id})" class="text-slate-300 hover:text-amber-500 transition-colors opacity-0 group-hover:opacity-100 p-2 hover:bg-amber-50 rounded-lg" title="แก้ไขชื่อ">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
                             <button onclick="removeStudent(${s.id})" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 p-2 hover:bg-rose-50 rounded-lg" title="ลบรายชื่อ">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -842,6 +676,7 @@
                     </tr>
                 `;
             }).join('');
+            lucide.createIcons();
         }
 
         // Set to track expanded cards
@@ -869,7 +704,26 @@
             if (!currentSubject) return;
 
             const searchTerm = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
-            const filteredStudents = appData.students.filter(s => s.name.toLowerCase().includes(searchTerm));
+            const sortOption = document.getElementById('sortSelect')?.value || 'default';
+
+            let filteredStudents = appData.students.filter(s => s.name.toLowerCase().includes(searchTerm));
+
+            // Sorting Logic (Same as Table)
+            if (sortOption === 'most_missing') {
+                filteredStudents.sort((a, b) => {
+                    const missingA = a.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    const missingB = b.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    return missingB - missingA;
+                });
+            } else if (sortOption === 'least_missing') {
+                filteredStudents.sort((a, b) => {
+                    const missingA = a.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    const missingB = b.missing.filter(m => currentSubject.assignments.some(assign => assign.id === m)).length;
+                    return missingA - missingB;
+                });
+            } else {
+                filteredStudents.sort((a, b) => a.id - b.id);
+            }
 
             if (filteredStudents.length === 0) {
                 container.innerHTML = `<div class="text-center text-slate-400 py-8 italic">ไม่พบรายชื่อนักเรียน</div>`;
@@ -933,6 +787,9 @@
                                         <button onclick="markAllComplete(${s.id})" class="text-teal-600 text-xs font-bold flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-teal-50 transition-colors">
                                             <i data-lucide="check-check" class="w-3 h-3"></i> ส่งครบทุกงาน
                                         </button>
+                                        <button onclick="editStudent(${s.id})" class="text-amber-500 text-xs font-bold flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-amber-50 transition-colors">
+                                            <i data-lucide="pencil" class="w-3 h-3"></i> แก้ไขชื่อ
+                                        </button>
                                         <button onclick="removeStudent(${s.id})" class="text-rose-500 text-xs font-bold flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-rose-50 transition-colors">
                                             <i data-lucide="trash-2" class="w-3 h-3"></i> ลบรายชื่อ
                                         </button>
@@ -943,6 +800,7 @@
                     </div>
                 `;
             }).join('');
+            lucide.createIcons();
         }
 
         function renderManageModal() {
@@ -956,9 +814,14 @@
                             <span class="w-2 h-2 rounded-full bg-teal-500"></span>
                             ${sub.name}
                         </h4>
-                        <button onclick="deleteSubject('${sub.id}')" class="btn-press text-slate-400 hover:text-rose-500 text-xs flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-rose-200">
-                            <i data-lucide="trash" class="w-3 h-3"></i> ลบวิชา
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="editSubject('${sub.id}')" class="btn-press text-slate-400 hover:text-amber-500 text-xs flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-amber-200">
+                                <i data-lucide="pencil" class="w-3 h-3"></i> แก้ไข
+                            </button>
+                            <button onclick="deleteSubject('${sub.id}')" class="btn-press text-slate-400 hover:text-rose-500 text-xs flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-rose-200">
+                                <i data-lucide="trash" class="w-3 h-3"></i> ลบวิชา
+                            </button>
+                        </div>
                     </div>
                     <div class="p-3 space-y-3">
                         <!-- Assignments List -->
@@ -970,9 +833,14 @@
                                         <div class="font-bold text-slate-700">${work.title}</div>
                                         <div class="text-xs text-slate-500">${work.desc}</div>
                                     </div>
-                                    <button onclick="deleteAssignment('${sub.id}', '${work.id}')" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                    </button>
+                                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editAssignment('${sub.id}', '${work.id}')" class="text-slate-300 hover:text-amber-500 p-1">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </button>
+                                        <button onclick="deleteAssignment('${sub.id}', '${work.id}')" class="text-slate-300 hover:text-rose-500 p-1">
+                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             `).join('')}
                             ${sub.assignments.length === 0 ? '<div class="text-xs text-slate-400 italic text-center py-2">ยังไม่มีงาน</div>' : ''}
@@ -992,6 +860,249 @@
                 </div>
             `).join('');
             lucide.createIcons();
+        }
+
+        // --- Action Functions ---
+        function switchSubject(subjectId) {
+            appData.currentSubjectId = subjectId;
+            saveData();
+            renderApp();
+        }
+
+        function toggleMissing(studentId, assignmentId) {
+            const student = appData.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            if (student.missing.includes(assignmentId)) {
+                student.missing = student.missing.filter(m => m !== assignmentId);
+            } else {
+                student.missing.push(assignmentId);
+            }
+
+            saveData();
+            renderApp();
+        }
+
+        function removeStudent(id) {
+            showConfirmModal(
+                'ลบรายชื่อนักเรียน?',
+                'ข้อมูลการส่งงานของนักเรียนคนนี้จะหายไป',
+                () => {
+                    appData.students = appData.students.filter(s => s.id !== id);
+                    saveData();
+                    renderApp();
+                    showToast('ลบรายชื่อเรียบร้อย');
+                }
+            );
+        }
+
+        function handleAddSubject(e) {
+            e.preventDefault();
+            const input = document.getElementById('newSubjectInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const newId = 'sub_' + Date.now();
+            appData.subjects.push({
+                id: newId,
+                name: name,
+                assignments: []
+            });
+
+            saveData();
+            renderApp();
+            input.value = '';
+            showToast(`เพิ่มวิชา "${name}" แล้ว`);
+        }
+
+        function deleteSubject(id) {
+            showConfirmModal(
+                'ลบวิชานี้?',
+                'ข้อมูลงานและการส่งงานทั้งหมดในวิชานี้จะหายไป',
+                () => {
+                    appData.subjects = appData.subjects.filter(s => s.id !== id);
+                    if (appData.currentSubjectId === id) {
+                        appData.currentSubjectId = appData.subjects[0]?.id || '';
+                    }
+                    saveData();
+                    renderApp();
+                    showToast('ลบวิชาเรียบร้อย');
+                }
+            );
+        }
+
+        function addAssignment(subjectId, title, desc) {
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+
+            const newId = 'w_' + Date.now();
+            subject.assignments.push({ id: newId, title, desc });
+
+            // Add to missing list for all students (Default Incomplete)
+            appData.students.forEach(s => {
+                if (!s.missing.includes(newId)) {
+                    s.missing.push(newId);
+                }
+            });
+
+            saveData();
+            renderApp();
+            showToast('เพิ่มงานเรียบร้อย');
+        }
+
+        function deleteAssignment(subjectId, assignmentId) {
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+
+            showConfirmModal(
+                'ลบงานนี้?',
+                'ข้อมูลการส่งงานของนักเรียนทุกคนในงานนี้จะหายไป',
+                () => {
+                    subject.assignments = subject.assignments.filter(a => a.id !== assignmentId);
+                    // Remove from missing lists
+                    appData.students.forEach(s => {
+                        s.missing = s.missing.filter(m => m !== assignmentId);
+                    });
+                    saveData();
+                    renderApp();
+                    showToast('ลบงานเรียบร้อย');
+                }
+            );
+        }
+
+        function editStudent(id) {
+            const student = appData.students.find(s => s.id === id);
+            if (!student) return;
+
+            const newName = prompt("แก้ไขชื่อนักเรียน:", student.name);
+            if (newName && newName.trim() !== "") {
+                student.name = newName.trim();
+                saveData();
+                renderApp();
+                showToast("แก้ไขชื่อเรียบร้อย");
+            }
+        }
+
+        function editSubject(id) {
+            const subject = appData.subjects.find(s => s.id === id);
+            if (!subject) return;
+
+            const newName = prompt("แก้ไขชื่อวิชา:", subject.name);
+            if (newName && newName.trim() !== "") {
+                subject.name = newName.trim();
+                saveData();
+                renderApp();
+                showToast("แก้ไขชื่อวิชาเรียบร้อย");
+            }
+        }
+
+        function editAssignment(subId, workId) {
+            const subject = appData.subjects.find(s => s.id === subId);
+            if (!subject) return;
+            const assignment = subject.assignments.find(a => a.id === workId);
+            if (!assignment) return;
+
+            const newTitle = prompt("แก้ไขชื่องาน:", assignment.title);
+            if (newTitle !== null) {
+                const newDesc = prompt("แก้ไขรายละเอียด:", assignment.desc);
+                if (newDesc !== null) {
+                    assignment.title = newTitle.trim() || assignment.title;
+                    assignment.desc = newDesc.trim() || assignment.desc;
+                    saveData();
+                    renderApp();
+                    showToast("แก้ไขงานเรียบร้อย");
+                }
+            }
+        }
+
+        // --- UI Utilities ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-6 h-6 ${type === 'success' ? 'text-teal-500' : 'text-rose-500'}"></i>
+                <div class="font-bold text-slate-700">${message}</div>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function openManageModal() {
+            const modal = document.getElementById('manageModal');
+            const backdrop = document.getElementById('manageBackdrop');
+            const content = document.getElementById('manageContent');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderManageModal();
+
+            // Animate In
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeManageModal() {
+            const modal = document.getElementById('manageModal');
+            const backdrop = document.getElementById('manageBackdrop');
+            const content = document.getElementById('manageContent');
+
+            backdrop.classList.add('opacity-0');
+            content.classList.add('opacity-0', 'scale-95');
+            content.classList.remove('scale-100');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function showConfirmModal(title, message, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            const backdrop = document.getElementById('confirmBackdrop');
+            const content = document.getElementById('confirmContent');
+            const titleEl = document.getElementById('confirmTitle');
+            const msgEl = document.getElementById('confirmMessage');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+            const okBtn = document.getElementById('confirmOkBtn');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+
+            const close = () => {
+                backdrop.classList.add('opacity-0');
+                content.classList.add('opacity-0', 'scale-95');
+                content.classList.remove('scale-100');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+
+            cancelBtn.onclick = close;
+            okBtn.onclick = () => {
+                onConfirm();
+                close();
+            };
         }
     </script>
 </body>
