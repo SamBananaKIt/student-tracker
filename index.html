@@ -23,32 +23,54 @@
                 -webkit-print-color-adjust: exact;
             }
         }
+
+        /* Custom Scrollbar for Tabs */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 
 <body class="bg-slate-50 min-h-screen text-slate-800">
 
-    <div class="max-w-5xl mx-auto p-4 md:p-8">
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
         <!-- Header -->
         <div
-            class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div class="flex items-center gap-4">
                 <div class="bg-teal-100 p-3 rounded-xl text-teal-600">
                     <i data-lucide="clipboard-list" class="w-8 h-8"></i>
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">ระบบติดตามงานค้าง</h1>
-                    <p class="text-slate-500 text-sm">ภาคเรียนที่ 2/2567</p>
+                    <p class="text-slate-500 text-sm">ภาคเรียนที่ 2/2568</p>
                 </div>
             </div>
-            <div class="text-right hidden md:block">
-                <div class="text-sm font-bold text-slate-600">ข้อมูล ณ วันที่</div>
-                <div id="printDate" class="text-teal-600 font-bold text-lg"></div>
+            <div class="flex items-center gap-3 no-print">
+                <button onclick="openManageModal()"
+                    class="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors text-sm font-bold">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    จัดการวิชา/งาน
+                </button>
+                <div class="hidden md:block text-right border-l pl-4 border-slate-200">
+                    <div class="text-xs font-bold text-slate-400">ข้อมูล ณ วันที่</div>
+                    <div id="printDate" class="text-teal-600 font-bold text-sm"></div>
+                </div>
             </div>
         </div>
 
+        <!-- Subject Tabs -->
+        <div class="flex overflow-x-auto gap-2 mb-6 scrollbar-hide no-print" id="subjectTabs">
+            <!-- Tabs injected here -->
+        </div>
+
         <!-- Add Student Form -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 no-print">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 no-print">
             <form id="addStudentForm" class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
                     <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
@@ -67,52 +89,36 @@
             </form>
         </div>
 
-        <!-- Legend -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6" id="assignmentLegend">
-            <!-- Legend items will be injected here -->
-        </div>
-
         <!-- Main Content Area -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[300px]">
             <!-- Desktop Table View -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr
-                            class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider border-b border-slate-100">
-                            <th class="p-4 w-16 text-center font-bold">#</th>
-                            <th class="p-4 font-bold">ชื่อ-นามสกุล</th>
-                            <!-- เลขงาน 1-7 -->
-                            <th class="p-2 border-l text-center">1</th>
-                            <th class="p-2 border-l text-center">2</th>
-                            <th class="p-2 border-l text-center">3</th>
-                            <th class="p-2 border-l text-center">4</th>
-                            <th class="p-2 border-l text-center">5</th>
-                            <th class="p-2 border-l text-center">6</th>
-                            <th class="p-2 border-l text-center">7</th>
-                            <th class="p-2 border-l w-64">สรุปสถานะ</th>
-                            <th class="no-print w-16"></th>
+                    <thead
+                        class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider border-b border-slate-100">
+                        <tr id="tableHeaderRow">
+                            <!-- Headers injected here -->
                         </tr>
                     </thead>
                     <tbody id="studentTableBody">
-                        <!-- รายชื่อจะถูกเติมที่นี่ -->
+                        <!-- Rows injected here -->
                     </tbody>
                 </table>
             </div>
 
             <!-- Mobile Card View -->
             <div class="md:hidden p-4 space-y-4" id="mobileStudentList">
-                <!-- Cards will be injected here -->
+                <!-- Cards injected here -->
             </div>
         </div>
 
         <!-- Footer -->
         <div class="mt-8 text-center text-slate-400 text-xs pb-20 md:pb-8">
-            <p>ระบบติดตามงานค้าง v1.2</p>
+            <p>ระบบติดตามงานค้าง v2.0</p>
         </div>
 
         <!-- Floating Action Button for Reset -->
-        <div class="fixed bottom-4 right-4 no-print z-50">
+        <div class="fixed bottom-4 right-4 no-print z-40">
             <button onclick="resetData()"
                 class="bg-slate-800 text-white p-4 rounded-full shadow-xl hover:bg-slate-700 transition-all hover:scale-105 active:scale-95"
                 title="ล้างข้อมูลทั้งหมด">
@@ -121,217 +127,391 @@
         </div>
     </div>
 
+    <!-- Management Modal -->
+    <div id="manageModal"
+        class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-teal-500"></i>
+                    จัดการวิชาและงาน
+                </h2>
+                <button onclick="closeManageModal()" class="text-slate-400 hover:text-rose-500">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-6">
+                <!-- Add Subject Section -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-3 text-sm">เพิ่มวิชาใหม่</h3>
+                    <form onsubmit="handleAddSubject(event)" class="flex gap-2">
+                        <input type="text" id="newSubjectInput" placeholder="ชื่อวิชา (เช่น Media, Graphic)"
+                            class="flex-1 p-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <button type="submit"
+                            class="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-teal-700">เพิ่ม</button>
+                    </form>
+                </div>
+
+                <!-- Subjects List -->
+                <div id="manageSubjectsList" class="space-y-4">
+                    <!-- Subject Items injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ข้อมูลงาน
-        const assignments = [
-            { id: 1, title: 'งานที่ 1', desc: '(สรุปหลักการ → พร้อม Pitch Deck)' },
-            { id: 2, title: 'งานที่ 2', desc: '(ข่าวทั่วไป → พร้อม Pitch Deck)' },
-            { id: 3, title: 'งานที่ 3', desc: '(สรุปทฤษฎี → พร้อม Pitch Deck)' },
-            { id: 4, title: 'งานที่ 4', desc: '(วาด 9 ช่อง / แบบตัวอย่างนักเรียน)' },
-            { id: 5, title: 'งานที่ 5', desc: '(สไลด์รีวิวหนังสั้น → พร้อม Pitch Deck)' },
-            { id: 6, title: 'งานที่ 6', desc: '(AI Traffic Brain → พร้อม Pitch Deck)' },
-            { id: 7, title: 'งานที่ 7', desc: '(มุมวัฒนธรรม → พร้อม Pitch Deck)' },
-        ];
+        // --- Data Structure ---
+        const STORAGE_KEY = 'student_tracker_data_v2';
 
-        // ข้อมูลนักเรียนเริ่มต้น
-        let students = [
-            { id: 1, name: 'ตัวอย่าง: นาย ก.', missing: [] },
-            { id: 2, name: 'ตัวอย่าง: นาย ข.', missing: [1, 4] }
-        ];
+        // Default Data
+        const defaultData = {
+            currentSubjectId: 'sub_1',
+            subjects: [
+                {
+                    id: 'sub_1',
+                    name: 'Media (Video)',
+                    assignments: [
+                        { id: 'w1', title: 'งานที่ 1', desc: 'สรุปหลักการ → พร้อม Pitch Deck' },
+                        { id: 'w2', title: 'งานที่ 2', desc: 'ข่าวทั่วไป → พร้อม Pitch Deck' },
+                        { id: 'w3', title: 'งานที่ 3', desc: 'สรุปทฤษฎี → พร้อม Pitch Deck' },
+                        { id: 'w4', title: 'งานที่ 4', desc: 'วาด 9 ช่อง / แบบตัวอย่างนักเรียน' },
+                        { id: 'w5', title: 'งานที่ 5', desc: 'สไลด์รีวิวหนังสั้น → พร้อม Pitch Deck' },
+                        { id: 'w6', title: 'งานที่ 6', desc: 'AI Traffic Brain → พร้อม Pitch Deck' },
+                        { id: 'w7', title: 'งานที่ 7', desc: 'มุมวัฒนธรรม → พร้อม Pitch Deck' }
+                    ]
+                },
+                {
+                    id: 'sub_2',
+                    name: 'Graphic (Model)',
+                    assignments: [
+                        { id: 'g1', title: 'งานที่ 1', desc: 'ออกแบบ Character' },
+                        { id: 'g2', title: 'งานที่ 2', desc: 'ปั้นโมเดล 3D' }
+                    ]
+                }
+            ],
+            students: [
+                { id: 1, name: 'ตัวอย่าง: นาย ก.', missing: ['w1', 'g1'] },
+                { id: 2, name: 'ตัวอย่าง: นาย ข.', missing: ['w4'] }
+            ]
+        };
 
-        const STORAGE_KEY = 'student_tracker_data_v1';
+        let appData = JSON.parse(JSON.stringify(defaultData));
 
-        // เริ่มต้นทำงาน
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
-            lucide.createIcons();
-            renderLegend();
-            renderAll();
+            renderApp();
             const dateEl = document.getElementById('printDate');
             if (dateEl) dateEl.innerText = new Date().toLocaleDateString('th-TH');
         });
 
-        // Load/Save Data
+        // --- Core Functions ---
         function loadData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
-                    students = JSON.parse(saved);
+                    appData = JSON.parse(saved);
+                    // Ensure currentSubjectId is valid
+                    if (!appData.subjects.find(s => s.id === appData.currentSubjectId)) {
+                        appData.currentSubjectId = appData.subjects[0]?.id || '';
+                    }
                 } catch (e) {
                     console.error('Error loading data', e);
+                    localStorage.removeItem(STORAGE_KEY); // Clear corrupted data
                 }
             }
         }
 
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
 
         function resetData() {
-            if (confirm('ต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่?')) {
+            if (confirm('ต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่? (ข้อมูลทั้งหมดจะหายไป)')) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
 
-        // ฟอร์มเพิ่มชื่อ
-        const addForm = document.getElementById('addStudentForm');
-        if (addForm) {
-            addForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const input = document.getElementById('studentNameInput');
-                const name = input.value.trim();
-                if (name) {
-                    const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-                    students.push({ id: newId, name: name, missing: [] });
-                    saveData();
-                    input.value = '';
-                    renderAll();
-                    renderLegend();
-                }
-            });
+        function renderApp() {
+            renderTabs();
+            renderTable();
+            renderMobileCards();
+            renderManageModal();
+            lucide.createIcons();
         }
 
-        // ฟังก์ชัน Toggle งานค้าง
+        // --- Subject Management ---
+        function switchSubject(subjectId) {
+            appData.currentSubjectId = subjectId;
+            saveData();
+            renderApp();
+        }
+
+        function handleAddSubject(e) {
+            e.preventDefault();
+            const input = document.getElementById('newSubjectInput');
+            const name = input.value.trim();
+            if (name) {
+                const newId = 'sub_' + Date.now();
+                appData.subjects.push({
+                    id: newId,
+                    name: name,
+                    assignments: []
+                });
+                appData.currentSubjectId = newId;
+                saveData();
+                input.value = '';
+                renderApp(); // Re-render everything including modal list
+            }
+        }
+
+        function deleteSubject(subjectId) {
+            if (confirm('ลบวิชานี้? (ข้อมูลงานและการส่งงานของวิชานี้จะหายไปทั้งหมด)')) {
+                appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
+                // Remove missing records for this subject's assignments
+                // (Optional cleanup, but good for hygiene)
+
+                if (appData.currentSubjectId === subjectId) {
+                    appData.currentSubjectId = appData.subjects[0]?.id || '';
+                }
+                saveData();
+                renderApp();
+            }
+        }
+
+        function addAssignment(subjectId, title, desc) {
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            if (subject) {
+                const newId = 'work_' + Date.now();
+                subject.assignments.push({ id: newId, title, desc });
+                saveData();
+                renderApp();
+            }
+        }
+
+        function deleteAssignment(subjectId, workId) {
+            if (confirm('ลบงานนี้?')) {
+                const subject = appData.subjects.find(s => s.id === subjectId);
+                if (subject) {
+                    subject.assignments = subject.assignments.filter(a => a.id !== workId);
+                    // Remove from students' missing list
+                    appData.students.forEach(s => {
+                        s.missing = s.missing.filter(id => id !== workId);
+                    });
+                    saveData();
+                    renderApp();
+                }
+            }
+        }
+
+        // --- Student Management ---
+        document.getElementById('addStudentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('studentNameInput');
+            const name = input.value.trim();
+            if (name) {
+                const newId = appData.students.length > 0 ? Math.max(...appData.students.map(s => s.id)) + 1 : 1;
+                appData.students.push({ id: newId, name: name, missing: [] });
+                saveData();
+                input.value = '';
+                renderApp();
+            }
+        });
+
+        function removeStudent(id) {
+            if (confirm('ลบรายชื่อนี้?')) {
+                appData.students = appData.students.filter(s => s.id !== id);
+                saveData();
+                renderApp();
+            }
+        }
+
         function toggleMissing(studentId, workId) {
-            const student = students.find(s => s.id === studentId);
+            const student = appData.students.find(s => s.id === studentId);
             if (student) {
                 if (student.missing.includes(workId)) {
                     student.missing = student.missing.filter(id => id !== workId);
                 } else {
                     student.missing.push(workId);
-                    student.missing.sort((a, b) => a - b);
                 }
                 saveData();
-                renderAll();
-                renderLegend();
+                renderApp();
             }
         }
 
-        // ลบนักเรียน
-        function removeStudent(id) {
-            if (confirm('ลบรายชื่อนี้?')) {
-                students = students.filter(s => s.id !== id);
-                saveData();
-                renderAll();
-                renderLegend();
-            }
-        }
-
-        // แสดงรายการงานด้านบน
-        function renderLegend() {
-            const container = document.getElementById('assignmentLegend');
+        // --- Rendering Functions ---
+        function renderTabs() {
+            const container = document.getElementById('subjectTabs');
             if (!container) return;
-            container.innerHTML = assignments.map(work => {
-                const count = students.filter(s => s.missing.includes(work.id)).length;
-                const statusClass = count > 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-white text-teal-600 border-slate-100';
+
+            if (appData.subjects.length === 0) {
+                container.innerHTML = '<div class="text-slate-400 text-sm p-2">ยังไม่มีวิชา (กดจัดการวิชาเพื่อเพิ่ม)</div>';
+                return;
+            }
+
+            container.innerHTML = appData.subjects.map(sub => {
+                const isActive = sub.id === appData.currentSubjectId;
                 return `
-                    <div class="p-3 rounded-lg border ${statusClass} text-sm flex justify-between items-center shadow-sm">
-                        <div>
-                            <span class="font-bold">งานที่ ${work.id}</span>
-                            <span class="text-xs ml-1 opacity-80">${work.desc}</span>
-                        </div>
-                        <span class="text-xs font-bold px-2 py-1 rounded-full ${count > 0 ? 'bg-white' : 'bg-teal-50'}">
-                            ${count > 0 ? `ค้าง ${count}` : 'ครบ'}
-                        </span>
-                    </div>
+                    <button onclick="switchSubject('${sub.id}')" 
+                        class="whitespace-nowrap px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-sm border
+                        ${isActive
+                        ? 'bg-teal-600 text-white border-teal-600 shadow-teal-200'
+                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:text-teal-600'}">
+                        ${sub.name}
+                    </button>
                 `;
             }).join('');
         }
 
-        function renderAll() {
-            renderTable();
-            renderMobileCards();
-            lucide.createIcons();
-        }
-
-        // แสดงตาราง (Desktop)
         function renderTable() {
+            const theadRow = document.getElementById('tableHeaderRow');
             const tbody = document.getElementById('studentTableBody');
-            if (!tbody) return;
 
-            if (students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">เพิ่มรายชื่อนักเรียนด้านบน</td></tr>`;
+            const currentSubject = appData.subjects.find(s => s.id === appData.currentSubjectId);
+
+            if (!currentSubject) {
+                theadRow.innerHTML = '';
+                tbody.innerHTML = `<tr><td class="p-8 text-center text-slate-400">กรุณาเลือกหรือเพิ่มวิชา</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = students.map((s, index) => {
-                // Checkboxes
-                const checkboxes = assignments.map(a => `
-                    <td class="p-2 text-center border-l border-slate-50">
-                        <input type="checkbox" 
-                            ${s.missing.includes(a.id) ? 'checked' : ''} 
-                            onchange="toggleMissing(${s.id}, ${a.id})"
-                            class="w-5 h-5 accent-rose-500 cursor-pointer">
-                    </td>
-                `).join('');
+            // Render Headers
+            let headers = `
+                <th class="p-4 w-16 text-center font-bold text-slate-400">#</th>
+                <th class="p-4 font-bold text-slate-700">ชื่อ-นามสกุล</th>
+            `;
 
-                // Summary
+            if (currentSubject.assignments.length === 0) {
+                headers += `<th class="p-4 text-center text-slate-400 font-normal italic">ยังไม่มีงานในวิชานี้</th>`;
+            } else {
+                headers += currentSubject.assignments.map((work, idx) => `
+                    <th class="p-2 border-l border-slate-100 text-center min-w-[80px] group relative">
+                        <div class="cursor-help" title="${work.desc}">
+                            <div class="font-bold text-teal-600">งานที่ ${idx + 1}</div>
+                            <div class="text-[10px] text-slate-400 font-normal truncate max-w-[100px] mx-auto">${work.title}</div>
+                        </div>
+                    </th>
+                `).join('');
+            }
+
+            headers += `
+                <th class="p-2 border-l border-slate-100 w-64 font-bold text-slate-700">สรุปสถานะ</th>
+                <th class="no-print w-16"></th>
+            `;
+            theadRow.innerHTML = headers;
+
+            // Render Rows
+            if (appData.students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="100%" class="p-8 text-center text-slate-400">เพิ่มรายชื่อนักเรียนด้านบน</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = appData.students.map((s, index) => {
+                // Checkboxes
+                let checkboxes = '';
+                if (currentSubject.assignments.length > 0) {
+                    checkboxes = currentSubject.assignments.map(a => `
+                        <td class="p-2 text-center border-l border-slate-50 hover:bg-slate-50 transition-colors">
+                            <input type="checkbox" 
+                                ${s.missing.includes(a.id) ? 'checked' : ''} 
+                                onchange="toggleMissing(${s.id}, '${a.id}')"
+                                class="w-5 h-5 accent-rose-500 cursor-pointer rounded focus:ring-rose-500">
+                        </td>
+                    `).join('');
+                } else {
+                    checkboxes = `<td class="p-2 border-l border-slate-50"></td>`;
+                }
+
+                // Summary (Only for current subject)
+                const missingInSubject = currentSubject.assignments.filter(a => s.missing.includes(a.id));
                 let summaryHtml = '';
-                if (s.missing.length > 0) {
+                if (missingInSubject.length > 0) {
                     summaryHtml = `
-                        <div class="text-rose-500 font-bold text-xs mb-1">ค้าง ${s.missing.length} งาน:</div>
-                        <ul class="text-[10px] text-slate-600 list-disc list-inside leading-tight">
-                            ${s.missing.map(mId => {
-                        const work = assignments.find(a => a.id === mId);
-                        return `<li><b>งาน ${mId}</b></li>`;
-                    }).join('')}
+                        <div class="text-rose-500 font-bold text-xs mb-1 bg-rose-50 inline-block px-2 py-0.5 rounded-full border border-rose-100">
+                            ค้าง ${missingInSubject.length} งาน
+                        </div>
+                        <ul class="text-[10px] text-slate-500 list-disc list-inside leading-tight mt-1 space-y-0.5">
+                            ${missingInSubject.map(a => `
+                                <li class="truncate" title="${a.title}: ${a.desc}">
+                                    <span class="font-medium text-slate-700">${a.title}</span> 
+                                    <span class="opacity-75">- ${a.desc}</span>
+                                </li>
+                            `).join('')}
                         </ul>
                     `;
                 } else {
-                    summaryHtml = `<span class="text-teal-600 text-xs flex items-center gap-1">✓ ครบถ้วน</span>`;
+                    summaryHtml = `<span class="text-teal-600 text-xs font-bold flex items-center gap-1 bg-teal-50 inline-block px-2 py-1 rounded-full border border-teal-100">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i> ครบถ้วน
+                    </span>`;
                 }
 
                 return `
-                    <tr class="border-b border-slate-100 hover:bg-teal-50/20 transition-colors">
-                        <td class="p-3 text-center text-slate-400 text-sm">${index + 1}</td>
+                    <tr class="border-b border-slate-50 hover:bg-slate-50/80 transition-colors">
+                        <td class="p-3 text-center text-slate-400 text-sm font-mono">${index + 1}</td>
                         <td class="p-3 font-medium text-slate-700">${s.name}</td>
                         ${checkboxes}
                         <td class="p-3 border-l border-slate-50 align-top">${summaryHtml}</td>
                         <td class="p-3 text-center no-print">
-                            <button onclick="removeStudent(${s.id})" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="removeStudent(${s.id})" class="text-slate-300 hover:text-rose-500 p-2 rounded-full hover:bg-rose-50 transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // แสดงการ์ด (Mobile)
         function renderMobileCards() {
             const container = document.getElementById('mobileStudentList');
             if (!container) return;
 
-            if (students.length === 0) {
+            const currentSubject = appData.subjects.find(s => s.id === appData.currentSubjectId);
+            if (!currentSubject) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-8">กรุณาเลือกวิชา</div>`;
+                return;
+            }
+
+            if (appData.students.length === 0) {
                 container.innerHTML = `<div class="text-center text-slate-400 py-8">เพิ่มรายชื่อนักเรียนด้านบน</div>`;
                 return;
             }
 
-            container.innerHTML = students.map((s, index) => {
-                const isComplete = s.missing.length === 0;
+            container.innerHTML = appData.students.map((s, index) => {
+                const missingInSubject = currentSubject.assignments.filter(a => s.missing.includes(a.id));
+                const isComplete = missingInSubject.length === 0;
 
                 // Work Toggles
-                const workToggles = assignments.map(a => {
-                    const isMissing = s.missing.includes(a.id);
-                    return `
-                        <div onclick="toggleMissing(${s.id}, ${a.id})" 
-                             class="cursor-pointer p-2 rounded border text-xs flex flex-col items-center justify-center gap-1 transition-all
-                             ${isMissing
-                            ? 'bg-rose-50 border-rose-200 text-rose-600'
-                            : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-teal-50 hover:text-teal-600'}">
-                            <span class="font-bold">${a.id}</span>
-                            <div class="w-3 h-3 rounded-full border ${isMissing ? 'bg-rose-500 border-rose-500' : 'bg-white border-slate-300'}"></div>
-                        </div>
-                    `;
-                }).join('');
+                let workToggles = '';
+                if (currentSubject.assignments.length > 0) {
+                    workToggles = currentSubject.assignments.map((a, idx) => {
+                        const isMissing = s.missing.includes(a.id);
+                        return `
+                            <div onclick="toggleMissing(${s.id}, '${a.id}')" 
+                                 class="cursor-pointer p-2 rounded-lg border text-xs flex flex-col items-center justify-center gap-1 transition-all relative overflow-hidden
+                                 ${isMissing
+                                ? 'bg-rose-50 border-rose-200 text-rose-600 shadow-sm'
+                                : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200 hover:text-teal-600'}">
+                                <span class="font-bold z-10">งาน ${idx + 1}</span>
+                                <div class="text-[9px] truncate w-full text-center opacity-70 z-10">${a.title}</div>
+                                ${isMissing ? '<div class="absolute inset-0 bg-rose-500/5 z-0"></div>' : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    workToggles = `<div class="col-span-4 text-center text-slate-300 text-xs py-4">ยังไม่มีงานในวิชานี้</div>`;
+                }
 
                 return `
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center gap-3">
-                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">${index + 1}</span>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded-md font-mono">${index + 1}</span>
                                 <h3 class="font-bold text-slate-700">${s.name}</h3>
                             </div>
-                            <button onclick="removeStudent(${s.id})" class="text-slate-300 hover:text-rose-500">
+                            <button onclick="removeStudent(${s.id})" class="text-slate-300 hover:text-rose-500 p-1">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -341,15 +521,73 @@
                         </div>
 
                         <div class="text-xs pt-3 border-t border-slate-50 flex justify-between items-center">
-                            <span class="text-slate-400">สถานะ:</span>
+                            <span class="text-slate-400 font-medium">${currentSubject.name}</span>
                             ${isComplete
-                        ? '<span class="text-teal-600 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> ส่งครบแล้ว</span>'
-                        : `<span class="text-rose-500 font-bold">ค้าง ${s.missing.length} งาน</span>`
+                        ? '<span class="text-teal-600 font-bold flex items-center gap-1 bg-teal-50 px-2 py-1 rounded-full"><i data-lucide="check-circle" class="w-3 h-3"></i> ครบถ้วน</span>'
+                        : `<span class="text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded-full">ค้าง ${missingInSubject.length} งาน</span>`
                     }
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // --- Modal Functions ---
+        function openManageModal() {
+            document.getElementById('manageModal').classList.remove('hidden');
+            document.getElementById('manageModal').classList.add('flex');
+            renderManageModal();
+        }
+
+        function closeManageModal() {
+            document.getElementById('manageModal').classList.add('hidden');
+            document.getElementById('manageModal').classList.remove('flex');
+        }
+
+        function renderManageModal() {
+            const list = document.getElementById('manageSubjectsList');
+            if (!list) return;
+
+            list.innerHTML = appData.subjects.map(sub => `
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-50 p-3 flex justify-between items-center border-b border-slate-100">
+                        <h4 class="font-bold text-slate-700">${sub.name}</h4>
+                        <button onclick="deleteSubject('${sub.id}')" class="text-slate-400 hover:text-rose-500 text-xs flex items-center gap-1">
+                            <i data-lucide="trash" class="w-3 h-3"></i> ลบวิชา
+                        </button>
+                    </div>
+                    <div class="p-3 space-y-3">
+                        <!-- Assignments List -->
+                        <div class="space-y-2">
+                            ${sub.assignments.map((work, idx) => `
+                                <div class="flex items-center gap-2 text-sm group">
+                                    <span class="text-slate-400 font-mono text-xs w-6">${idx + 1}.</span>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-slate-700">${work.title}</div>
+                                        <div class="text-xs text-slate-500">${work.desc}</div>
+                                    </div>
+                                    <button onclick="deleteAssignment('${sub.id}', '${work.id}')" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                            ${sub.assignments.length === 0 ? '<div class="text-xs text-slate-400 italic text-center py-2">ยังไม่มีงาน</div>' : ''}
+                        </div>
+
+                        <!-- Add Assignment Form -->
+                        <form onsubmit="event.preventDefault(); addAssignment('${sub.id}', this.title.value, this.desc.value); this.reset();" class="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2">
+                            <input name="title" type="text" placeholder="ชื่องาน (เช่น งานที่ 1)" required
+                                class="w-full p-2 border border-slate-200 rounded text-xs focus:outline-none focus:border-teal-500">
+                            <div class="flex gap-2">
+                                <input name="desc" type="text" placeholder="รายละเอียด (เช่น สรุปบทที่ 1)" required
+                                    class="flex-1 p-2 border border-slate-200 rounded text-xs focus:outline-none focus:border-teal-500">
+                                <button type="submit" class="bg-slate-800 text-white px-3 py-1 rounded text-xs font-bold hover:bg-slate-700">เพิ่ม</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
         }
     </script>
 </body>
