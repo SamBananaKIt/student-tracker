@@ -146,133 +146,121 @@
                             </div>
 
                             <!-- ท้ายกระดาษเวลาปริ้นท์ -->
-                            <div class="hidden print-only p-8 mt-4">
-                                <div class="flex justify-between items-end">
-                                    <div class="text-sm text-slate-500">หมายเหตุ: <span class="text-rose-500">✓</span> =
-                                        ยังไม่ส่งงาน</div>
-                                    <div class="text-center w-48">
-                                        <div class="border-b border-slate-400 mb-2 h-8"></div>
-                                        <p class="text-sm">ผู้ตรวจสอบ</p>
-                                    </div>
-                                </div>
+                            <!-- Mobile Card View (Hidden on Desktop) -->
+                            <div class="md:hidden space-y-4 mb-20" id="mobileStudentList">
+                                <!-- Cards will be injected here -->
                             </div>
                         </div>
 
-                        <!-- Mobile Card View (Hidden on Desktop) -->
-                        <div class="md:hidden space-y-4 mb-20" id="mobileStudentList">
-                            <!-- Cards will be injected here -->
+                        <!-- Floating Action Button for Reset (Mobile/Desktop) -->
+                        <div class="fixed bottom-4 right-4 no-print">
+                            <button onclick="resetData()"
+                                class="bg-slate-800 text-white p-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors"
+                                title="ล้างข้อมูลทั้งหมด">
+                                <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                            </button>
                         </div>
-                    </div>
 
-                    <!-- Floating Action Button for Reset (Mobile/Desktop) -->
-                    <div class="fixed bottom-4 right-4 no-print">
-                        <button onclick="resetData()"
-                            class="bg-slate-800 text-white p-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors"
-                            title="ล้างข้อมูลทั้งหมด">
-                            <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-                        </button>
-                    </div>
+                        <script>
+                            // ข้อมูลงาน
+                            const assignments = [
+                                { id: 1, title: 'งานที่ 1', desc: '(สรุปหลักการ → พร้อม Pitch Deck)' },
+                                { id: 2, title: 'งานที่ 2', desc: '(ข่าวทั่วไป → พร้อม Pitch Deck)' },
+                                { id: 3, title: 'งานที่ 3', desc: '(สรุปทฤษฎี → พร้อม Pitch Deck)' },
+                                { id: 4, title: 'งานที่ 4', desc: '(วาด 9 ช่อง / แบบตัวอย่างนักเรียน)' },
+                                { id: 5, title: 'งานที่ 5', desc: '(สไลด์รีวิวหนังสั้น → พร้อม Pitch Deck)' },
+                                { id: 6, title: 'งานที่ 6', desc: '(AI Traffic Brain → พร้อม Pitch Deck)' },
+                                { id: 7, title: 'งานที่ 7', desc: '(มุมวัฒนธรรม → พร้อม Pitch Deck)' },
+                            ];
 
-                    <script>
-                        // ข้อมูลงาน
-                        const assignments = [
-                            { id: 1, title: 'งานที่ 1', desc: '(สรุปหลักการ → พร้อม Pitch Deck)' },
-                            { id: 2, title: 'งานที่ 2', desc: '(ข่าวทั่วไป → พร้อม Pitch Deck)' },
-                            { id: 3, title: 'งานที่ 3', desc: '(สรุปทฤษฎี → พร้อม Pitch Deck)' },
-                            { id: 4, title: 'งานที่ 4', desc: '(วาด 9 ช่อง / แบบตัวอย่างนักเรียน)' },
-                            { id: 5, title: 'งานที่ 5', desc: '(สไลด์รีวิวหนังสั้น → พร้อม Pitch Deck)' },
-                            { id: 6, title: 'งานที่ 6', desc: '(AI Traffic Brain → พร้อม Pitch Deck)' },
-                            { id: 7, title: 'งานที่ 7', desc: '(มุมวัฒนธรรม → พร้อม Pitch Deck)' },
-                        ];
+                            // ข้อมูลนักเรียนเริ่มต้น
+                            let students = [
+                                { id: 1, name: 'ตัวอย่าง: นาย ก.', missing: [] },
+                                { id: 2, name: 'ตัวอย่าง: นาย ข.', missing: [1, 4] }
+                            ];
 
-                        // ข้อมูลนักเรียนเริ่มต้น
-                        let students = [
-                            { id: 1, name: 'ตัวอย่าง: นาย ก.', missing: [] },
-                            { id: 2, name: 'ตัวอย่าง: นาย ข.', missing: [1, 4] }
-                        ];
+                            const STORAGE_KEY = 'student_tracker_data_v1';
 
-                        const STORAGE_KEY = 'student_tracker_data_v1';
+                            // เริ่มต้นทำงาน
+                            document.addEventListener('DOMContentLoaded', () => {
+                                loadData();
+                                lucide.createIcons();
+                                renderLegend();
+                                renderAll();
+                                document.getElementById('printDate').innerText = new Date().toLocaleDateString('th-TH');
+                            });
 
-                        // เริ่มต้นทำงาน
-                        document.addEventListener('DOMContentLoaded', () => {
-                            loadData();
-                            lucide.createIcons();
-                            renderLegend();
-                            renderAll();
-                            document.getElementById('printDate').innerText = new Date().toLocaleDateString('th-TH');
-                        });
-
-                        // Load/Save Data
-                        function loadData() {
-                            const saved = localStorage.getItem(STORAGE_KEY);
-                            if (saved) {
-                                try {
-                                    students = JSON.parse(saved);
-                                } catch (e) {
-                                    console.error('Error loading data', e);
+                            // Load/Save Data
+                            function loadData() {
+                                const saved = localStorage.getItem(STORAGE_KEY);
+                                if (saved) {
+                                    try {
+                                        students = JSON.parse(saved);
+                                    } catch (e) {
+                                        console.error('Error loading data', e);
+                                    }
                                 }
                             }
-                        }
 
-                        function saveData() {
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-                        }
-
-                        function resetData() {
-                            if (confirm('ต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่?')) {
-                                localStorage.removeItem(STORAGE_KEY);
-                                location.reload();
+                            function saveData() {
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
                             }
-                        }
 
-                        // ฟอร์มเพิ่มชื่อ
-                        document.getElementById('addStudentForm').addEventListener('submit', (e) => {
-                            e.preventDefault();
-                            const input = document.getElementById('studentNameInput');
-                            const name = input.value.trim();
-                            if (name) {
-                                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-                                students.push({ id: newId, name: name, missing: [] });
-                                saveData();
-                                input.value = '';
-                                renderAll();
-                                renderLegend();
-                            }
-                        });
-
-                        // ฟังก์ชัน Toggle งานค้าง
-                        function toggleMissing(studentId, workId) {
-                            const student = students.find(s => s.id === studentId);
-                            if (student) {
-                                if (student.missing.includes(workId)) {
-                                    student.missing = student.missing.filter(id => id !== workId);
-                                } else {
-                                    student.missing.push(workId);
-                                    student.missing.sort((a, b) => a - b);
+                            function resetData() {
+                                if (confirm('ต้องการล้างข้อมูลทั้งหมดและเริ่มใหม่?')) {
+                                    localStorage.removeItem(STORAGE_KEY);
+                                    location.reload();
                                 }
-                                saveData();
-                                renderAll();
-                                renderLegend();
                             }
-                        }
 
-                        // ลบนักเรียน
-                        function removeStudent(id) {
-                            if (confirm('ลบรายชื่อนี้?')) {
-                                students = students.filter(s => s.id !== id);
-                                saveData();
-                                renderAll();
-                                renderLegend();
+                            // ฟอร์มเพิ่มชื่อ
+                            document.getElementById('addStudentForm').addEventListener('submit', (e) => {
+                                e.preventDefault();
+                                const input = document.getElementById('studentNameInput');
+                                const name = input.value.trim();
+                                if (name) {
+                                    const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+                                    students.push({ id: newId, name: name, missing: [] });
+                                    saveData();
+                                    input.value = '';
+                                    renderAll();
+                                    renderLegend();
+                                }
+                            });
+
+                            // ฟังก์ชัน Toggle งานค้าง
+                            function toggleMissing(studentId, workId) {
+                                const student = students.find(s => s.id === studentId);
+                                if (student) {
+                                    if (student.missing.includes(workId)) {
+                                        student.missing = student.missing.filter(id => id !== workId);
+                                    } else {
+                                        student.missing.push(workId);
+                                        student.missing.sort((a, b) => a - b);
+                                    }
+                                    saveData();
+                                    renderAll();
+                                    renderLegend();
+                                }
                             }
-                        }
 
-                        // แสดงรายการงานด้านบน
-                        function renderLegend() {
-                            const container = document.getElementById('assignmentLegend');
-                            container.innerHTML = assignments.map(work => {
-                                const count = students.filter(s => s.missing.includes(work.id)).length;
-                                const statusClass = count > 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-white text-teal-600 border-slate-100';
-                                return `
+                            // ลบนักเรียน
+                            function removeStudent(id) {
+                                if (confirm('ลบรายชื่อนี้?')) {
+                                    students = students.filter(s => s.id !== id);
+                                    saveData();
+                                    renderAll();
+                                    renderLegend();
+                                }
+                            }
+
+                            // แสดงรายการงานด้านบน
+                            function renderLegend() {
+                                const container = document.getElementById('assignmentLegend');
+                                container.innerHTML = assignments.map(work => {
+                                    const count = students.filter(s => s.missing.includes(work.id)).length;
+                                    const statusClass = count > 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-white text-teal-600 border-slate-100';
+                                    return `
                     <div class="p-3 rounded-lg border ${statusClass} text-sm flex justify-between items-center shadow-sm">
                         <div>
                             <span class="font-bold">งานที่ ${work.id}</span>
@@ -283,26 +271,26 @@
                         </span>
                     </div>
                 `;
-                            }).join('');
-                        }
-
-                        function renderAll() {
-                            renderTable();
-                            renderMobileCards();
-                            lucide.createIcons();
-                        }
-
-                        // แสดงตาราง (Desktop)
-                        function renderTable() {
-                            const tbody = document.getElementById('studentTableBody');
-                            if (students.length === 0) {
-                                tbody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">เพิ่มรายชื่อนักเรียนด้านบน</td></tr>`;
-                                return;
+                                }).join('');
                             }
 
-                            tbody.innerHTML = students.map((s, index) => {
-                                // Checkboxes
-                                const checkboxes = assignments.map(a => `
+                            function renderAll() {
+                                renderTable();
+                                renderMobileCards();
+                                lucide.createIcons();
+                            }
+
+                            // แสดงตาราง (Desktop)
+                            function renderTable() {
+                                const tbody = document.getElementById('studentTableBody');
+                                if (students.length === 0) {
+                                    tbody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400">เพิ่มรายชื่อนักเรียนด้านบน</td></tr>`;
+                                    return;
+                                }
+
+                                tbody.innerHTML = students.map((s, index) => {
+                                    // Checkboxes
+                                    const checkboxes = assignments.map(a => `
                     <td class="p-2 text-center border-l border-slate-50">
                         <input type="checkbox" 
                             ${s.missing.includes(a.id) ? 'checked' : ''} 
@@ -311,23 +299,23 @@
                     </td>
                 `).join('');
 
-                                // Summary
-                                let summaryHtml = '';
-                                if (s.missing.length > 0) {
-                                    summaryHtml = `
+                                    // Summary
+                                    let summaryHtml = '';
+                                    if (s.missing.length > 0) {
+                                        summaryHtml = `
                         <div class="text-rose-500 font-bold text-xs mb-1">ค้าง ${s.missing.length} งาน:</div>
                         <ul class="text-[10px] text-slate-600 list-disc list-inside leading-tight">
                             ${s.missing.map(mId => {
-                                        const work = assignments.find(a => a.id === mId);
-                                        return `<li><b>งาน ${mId}</b></li>`;
-                                    }).join('')}
+                                            const work = assignments.find(a => a.id === mId);
+                                            return `<li><b>งาน ${mId}</b></li>`;
+                                        }).join('')}
                         </ul>
                     `;
-                                } else {
-                                    summaryHtml = `<span class="text-teal-600 text-xs flex items-center gap-1">✓ ครบถ้วน</span>`;
-                                }
+                                    } else {
+                                        summaryHtml = `<span class="text-teal-600 text-xs flex items-center gap-1">✓ ครบถ้วน</span>`;
+                                    }
 
-                                return `
+                                    return `
                     <tr class="border-b border-slate-100 hover:bg-teal-50/20 transition-colors">
                         <td class="p-3 text-center text-slate-400 text-sm">${index + 1}</td>
                         <td class="p-3 font-medium text-slate-700">${s.name}</td>
@@ -338,36 +326,36 @@
                         </td>
                     </tr>
                 `;
-                            }).join('');
-                        }
-
-                        // แสดงการ์ด (Mobile)
-                        function renderMobileCards() {
-                            const container = document.getElementById('mobileStudentList');
-                            if (students.length === 0) {
-                                container.innerHTML = `<div class="text-center text-slate-400 py-8">เพิ่มรายชื่อนักเรียนด้านบน</div>`;
-                                return;
+                                }).join('');
                             }
 
-                            container.innerHTML = students.map((s, index) => {
-                                const isComplete = s.missing.length === 0;
+                            // แสดงการ์ด (Mobile)
+                            function renderMobileCards() {
+                                const container = document.getElementById('mobileStudentList');
+                                if (students.length === 0) {
+                                    container.innerHTML = `<div class="text-center text-slate-400 py-8">เพิ่มรายชื่อนักเรียนด้านบน</div>`;
+                                    return;
+                                }
 
-                                // Work Toggles
-                                const workToggles = assignments.map(a => {
-                                    const isMissing = s.missing.includes(a.id);
-                                    return `
+                                container.innerHTML = students.map((s, index) => {
+                                    const isComplete = s.missing.length === 0;
+
+                                    // Work Toggles
+                                    const workToggles = assignments.map(a => {
+                                        const isMissing = s.missing.includes(a.id);
+                                        return `
                         <div onclick="toggleMissing(${s.id}, ${a.id})" 
                              class="cursor-pointer p-2 rounded border text-xs flex flex-col items-center justify-center gap-1 transition-all
                              ${isMissing
-                                            ? 'bg-rose-50 border-rose-200 text-rose-600'
-                                            : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-teal-50 hover:text-teal-600'}">
+                                                ? 'bg-rose-50 border-rose-200 text-rose-600'
+                                                : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-teal-50 hover:text-teal-600'}">
                             <span class="font-bold">${a.id}</span>
                             <div class="w-3 h-3 rounded-full border ${isMissing ? 'bg-rose-500 border-rose-500' : 'bg-white border-slate-300'}"></div>
                         </div>
                     `;
-                                }).join('');
+                                    }).join('');
 
-                                return `
+                                    return `
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center gap-3">
@@ -386,15 +374,15 @@
                         <div class="text-xs pt-3 border-t border-slate-50 flex justify-between items-center">
                             <span class="text-slate-400">สถานะ:</span>
                             ${isComplete
-                                        ? '<span class="text-teal-600 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> ส่งครบแล้ว</span>'
-                                        : `<span class="text-rose-500 font-bold">ค้าง ${s.missing.length} งาน</span>`
-                                    }
+                                            ? '<span class="text-teal-600 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> ส่งครบแล้ว</span>'
+                                            : `<span class="text-rose-500 font-bold">ค้าง ${s.missing.length} งาน</span>`
+                                        }
                         </div>
                     </div>
                 `;
-                            }).join('');
-                        }
-                    </script>
+                                }).join('');
+                            }
+                        </script>
                 </body>
 
 </html>
