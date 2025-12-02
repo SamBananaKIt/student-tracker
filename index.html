@@ -358,38 +358,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             renderApp();
-            const dateEl = document.getElementById('printDate');
-            if (dateEl) dateEl.innerText = new Date().toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' });
-        });
-
-        // --- UI Utils (Toast & Modal) ---
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-
-            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
-            const bgClass = type === 'success' ? 'bg-slate-800 text-white' : 'bg-rose-500 text-white';
-
-            toast.className = `toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl ${bgClass} min-w-[300px]`;
-            toast.innerHTML = `
-                <i data-lucide="${icon}" class="w-5 h-5"></i>
-                <span class="font-bold text-sm">${message}</span>
-            `;
-
-            container.appendChild(toast);
-            lucide.createIcons();
-
-            // Remove after 3s
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-20px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function showConfirmModal(title, message, onConfirm) {
-            const modal = document.getElementById('confirmModal');
-            const backdrop = document.getElementById('confirmBackdrop');
             const content = document.getElementById('confirmContent');
             const titleEl = document.getElementById('confirmTitle');
             const msgEl = document.getElementById('confirmMessage');
@@ -433,136 +401,136 @@
 
         // --- Core Functions ---
         function loadData() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try {
-                    appData = JSON.parse(saved);
-                    if (!appData.subjects.find(s => s.id === appData.currentSubjectId)) {
-                        appData.currentSubjectId = appData.subjects[0]?.id || '';
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    try {
+                        appData = JSON.parse(saved);
+                        if (!appData.subjects.find(s => s.id === appData.currentSubjectId)) {
+                            appData.currentSubjectId = appData.subjects[0]?.id || '';
+                        }
+                    } catch (e) {
+                        console.error('Error loading data', e);
+                        localStorage.removeItem(STORAGE_KEY);
                     }
-                } catch (e) {
-                    console.error('Error loading data', e);
-                    localStorage.removeItem(STORAGE_KEY);
                 }
             }
-        }
 
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            }
 
         function confirmReset() {
-            showConfirmModal(
-                'ล้างข้อมูลทั้งหมด?',
-                'ข้อมูลนักเรียนและงานทั้งหมดจะหายไป เริ่มต้นใหม่',
-                () => {
-                    localStorage.removeItem(STORAGE_KEY);
-                    location.reload();
-                }
-            );
-        }
+                showConfirmModal(
+                    'ล้างข้อมูลทั้งหมด?',
+                    'ข้อมูลนักเรียนและงานทั้งหมดจะหายไป เริ่มต้นใหม่',
+                    () => {
+                        localStorage.removeItem(STORAGE_KEY);
+                        location.reload();
+                    }
+                );
+            }
 
         function renderApp() {
-            renderTabs();
-            renderTable();
-            renderMobileCards();
-            renderManageModal();
-            lucide.createIcons();
-        }
+                renderTabs();
+                renderTable();
+                renderMobileCards();
+                renderManageModal();
+                lucide.createIcons();
+            }
 
         // --- Subject Management ---
         function switchSubject(subjectId) {
-            if (appData.currentSubjectId === subjectId) return;
-            appData.currentSubjectId = subjectId;
-            saveData();
-            renderApp();
-        }
+                if (appData.currentSubjectId === subjectId) return;
+                appData.currentSubjectId = subjectId;
+                saveData();
+                renderApp();
+            }
 
         function handleAddSubject(e) {
-            e.preventDefault();
-            const input = document.getElementById('newSubjectInput');
-            const name = input.value.trim();
-            if (name) {
-                const newId = 'sub_' + Date.now();
-                appData.subjects.push({
-                    id: newId,
-                    name: name,
-                    assignments: []
-                });
-                appData.currentSubjectId = newId;
-                saveData();
-                input.value = '';
-                renderApp();
-                showToast(`เพิ่มวิชา "${name}" แล้ว`);
+                e.preventDefault();
+                const input = document.getElementById('newSubjectInput');
+                const name = input.value.trim();
+                if (name) {
+                    const newId = 'sub_' + Date.now();
+                    appData.subjects.push({
+                        id: newId,
+                        name: name,
+                        assignments: []
+                    });
+                    appData.currentSubjectId = newId;
+                    saveData();
+                    input.value = '';
+                    renderApp();
+                    showToast(`เพิ่มวิชา "${name}" แล้ว`);
+                }
             }
-        }
 
         function deleteSubject(subjectId) {
-            showConfirmModal(
-                'ลบวิชานี้?',
-                'ข้อมูลงานและการส่งงานของวิชานี้จะหายไปทั้งหมด',
-                () => {
-                    const subName = appData.subjects.find(s => s.id === subjectId)?.name;
-                    appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
-                    if (appData.currentSubjectId === subjectId) {
-                        appData.currentSubjectId = appData.subjects[0]?.id || '';
-                    }
-                    saveData();
-                    renderApp();
-                    showToast(`ลบวิชา "${subName}" แล้ว`, 'error');
-                }
-            );
-        }
-
-        function addAssignment(subjectId, title, desc) {
-            const subject = appData.subjects.find(s => s.id === subjectId);
-            if (subject) {
-                const newId = 'work_' + Date.now();
-                subject.assignments.push({ id: newId, title, desc });
-                saveData();
-                renderApp();
-                showToast('เพิ่มงานเรียบร้อย');
-            }
-        }
-
-        function deleteAssignment(subjectId, workId) {
-            showConfirmModal(
-                'ลบงานนี้?',
-                'ข้อมูลการส่งงานของนักเรียนทุกคนในงานนี้จะหายไป',
-                () => {
-                    const subject = appData.subjects.find(s => s.id === subjectId);
-                    if (subject) {
-                        subject.assignments = subject.assignments.filter(a => a.id !== workId);
-                        appData.students.forEach(s => {
-                            s.missing = s.missing.filter(id => id !== workId);
-                        });
+                showConfirmModal(
+                    'ลบวิชานี้?',
+                    'ข้อมูลงานและการส่งงานของวิชานี้จะหายไปทั้งหมด',
+                    () => {
+                        const subName = appData.subjects.find(s => s.id === subjectId)?.name;
+                        appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
+                        if (appData.currentSubjectId === subjectId) {
+                            appData.currentSubjectId = appData.subjects[0]?.id || '';
+                        }
                         saveData();
                         renderApp();
-                        showToast('ลบงานแล้ว', 'error');
+                        showToast(`ลบวิชา "${subName}" แล้ว`, 'error');
                     }
+                );
+            }
+
+        function addAssignment(subjectId, title, desc) {
+                const subject = appData.subjects.find(s => s.id === subjectId);
+                if (subject) {
+                    const newId = 'work_' + Date.now();
+                    subject.assignments.push({ id: newId, title, desc });
+                    saveData();
+                    renderApp();
+                    showToast('เพิ่มงานเรียบร้อย');
                 }
-            );
-        }
+            }
+
+        function deleteAssignment(subjectId, workId) {
+                showConfirmModal(
+                    'ลบงานนี้?',
+                    'ข้อมูลการส่งงานของนักเรียนทุกคนในงานนี้จะหายไป',
+                    () => {
+                        const subject = appData.subjects.find(s => s.id === subjectId);
+                        if (subject) {
+                            subject.assignments = subject.assignments.filter(a => a.id !== workId);
+                            appData.students.forEach(s => {
+                                s.missing = s.missing.filter(id => id !== workId);
+                            });
+                            saveData();
+                            renderApp();
+                            showToast('ลบงานแล้ว', 'error');
+                        }
+                    }
+                );
+            }
 
         // --- Student Management ---
         document.getElementById('addStudentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const input = document.getElementById('studentNameInput');
-            const name = input.value.trim();
-            if (name) {
-                const newId = appData.students.length > 0 ? Math.max(...appData.students.map(s => s.id)) + 1 : 1;
-                appData.students.push({ id: newId, name: name, missing: [] });
-                saveData();
-                input.value = '';
-                renderApp();
-                showToast(`เพิ่ม "${name}" แล้ว`);
+                e.preventDefault();
+                const input = document.getElementById('studentNameInput');
+                const name = input.value.trim();
+                if (name) {
+                    const newId = appData.students.length > 0 ? Math.max(...appData.students.map(s => s.id)) + 1 : 1;
+                    appData.students.push({ id: newId, name: name, missing: [] });
+                    saveData();
+                    input.value = '';
+                    renderApp();
+                    showToast(`เพิ่ม "${name}" แล้ว`);
 
-                // Scroll to bottom
-                setTimeout(() => {
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }, 100);
-            }
-        });
+                    // Scroll to bottom
+                    setTimeout(() => {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }, 100);
+                }
+            });
 
         function removeStudent(id) {
             showConfirmModal(
