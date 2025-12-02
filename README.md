@@ -12,3 +12,4 @@
 1. สร้าง Repository ใน GitHub
 2. Push ไฟล์ขึ้นไป
 3. เปิดใช้งาน GitHub Pages ใน Settings
+# student-tracker
