@@ -58,14 +58,28 @@
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        /* Scroll Mask for Tabs */
+        .scroll-mask {
+            mask-image: linear-gradient(to right, transparent, black 20px, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
         }
+
+        /* Animations */
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         @keyframes popIn {
@@ -580,18 +594,6 @@
         }
 
         // --- Student Management ---
-        document.getElementById('addStudentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const input = document.getElementById('studentNameInput');
-            const name = input.value.trim();
-            if (name) {
-                const newId = appData.students.length > 0 ? Math.max(...appData.students.map(s => s.id)) + 1 : 1;
-                appData.students.push({ id: newId, name: name, missing: [] });
-                saveData();
-                input.value = '';
-                renderApp();
-                showToast(`เพิ่ม "${name}" แล้ว`);
-
                 // Scroll to bottom
                 setTimeout(() => {
                     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
