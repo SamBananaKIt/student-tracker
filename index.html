@@ -100,6 +100,19 @@
     animation: fadeScale 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
+    /* Smooth Accordion Animation */
+    .accordion-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .accordion-wrapper.open {
+    grid-template-rows: 1fr;
+    }
+    .accordion-inner {
+    overflow: hidden;
+    }
+
     .hover-float {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -172,6 +185,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
+                <button onclick="toggleLanguage()"
+                    class="w-10 h-10 rounded-2xl border border-white/50 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:scale-110 transition-all duration-300 shadow-sm backdrop-blur-md flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-300">
+                    <span id="lang-display">TH</span>
+                </button>
                 <button id="themeToggle"
                     class="p-3 rounded-2xl border border-white/50 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:scale-110 transition-all duration-300 shadow-sm backdrop-blur-md group">
                     <i data-lucide="moon"
@@ -333,6 +350,125 @@
     <div id="toast-container"></div>
 
     <script>
+        const translations = {
+            th: {
+                title: "รายการงานค้าง",
+                subtitle: "Elite Tracker",
+                manage: "จัดการวิชา",
+                totalStudents: "นักเรียนทั้งหมด",
+                completionRate: "ความสำเร็จรวม",
+                pendingTasks: "งานที่ค้างอยู่",
+                selectedSubject: "วิชาที่เลือก",
+                addStudentPlaceholder: "ชื่อนักเรียนใหม่...",
+                noSubjects: "โปรดเพิ่มวิชาอย่างน้อย 1 วิชา",
+                noData: "ยังไม่มีข้อมูลวิชา",
+                noWork: "ไม่มีงาน",
+                complete: "ครบแล้ว",
+                pending: "งานค้าง",
+                tapToView: "แตะเพื่อดูงานที่ค้าง",
+                tapToDetail: "แตะเพื่อดูรายละเอียด",
+                markAll: "ทำเครื่องหมายว่าเสร็จทั้งหมด",
+                editName: "แก้ไขชื่อ",
+                delete: "ลบ",
+                confirmDelete: "คุณแน่ใจหรือไม่ที่จะลบ",
+                studentName: "ชื่อนักเรียน",
+                save: "บันทึก",
+                cancel: "ยกเลิก",
+                manageSubjects: "จัดการวิชา",
+                addSubjectPlaceholder: "ชื่อวิชาใหม่...",
+                assignments: "งานที่มอบหมาย",
+                addAssignmentPlaceholder: "ชื่องาน...",
+                descPlaceholder: "รายละเอียด...",
+                close: "ปิด",
+                studentAdded: "เพิ่มนักเรียนแล้ว",
+                allComplete: "ทำงานครบทั้งหมดแล้ว",
+                deleteStudent: "ลบนักเรียน?",
+                deleteIrreversible: "การลบนี้ไม่สามารถย้อนกลับได้",
+                studentDeleted: "ลบนักเรียนแล้ว",
+                editStudentName: "แก้ไขชื่อนักเรียน",
+                nameUpdated: "อัปเดตชื่อแล้ว",
+                completeLabel: "เสร็จสิ้น"
+            },
+            en: {
+                title: "Pending Tasks",
+                subtitle: "Elite Tracker",
+                manage: "Manage Subjects",
+                totalStudents: "Total Students",
+                completionRate: "Completion Rate",
+                pendingTasks: "Pending Tasks",
+                selectedSubject: "Selected Subject",
+                addStudentPlaceholder: "New Student Name...",
+                noSubjects: "Please add at least 1 subject",
+                noData: "No subject data available",
+                noWork: "No Work",
+                complete: "Complete",
+                pending: "Pending",
+                tapToView: "Tap to view pending tasks",
+                tapToDetail: "Tap for details",
+                markAll: "Mark All Complete",
+                editName: "Edit Name",
+                delete: "Delete",
+                confirmDelete: "Are you sure you want to delete",
+                studentName: "Student Name",
+                save: "Save",
+                cancel: "Cancel",
+                manageSubjects: "Manage Subjects",
+                addSubjectPlaceholder: "New Subject Name...",
+                assignments: "Assignments",
+                addAssignmentPlaceholder: "Assignment Title...",
+                descPlaceholder: "Description...",
+                close: "Close",
+                studentAdded: "Student added",
+                allComplete: "All tasks completed",
+                deleteStudent: "Delete Student?",
+                deleteIrreversible: "This action cannot be undone",
+                studentDeleted: "Student deleted",
+                editStudentName: "Edit Student Name",
+                nameUpdated: "Name updated",
+                completeLabel: "Complete"
+            }
+        };
+
+        let currentLang = localStorage.getItem('elite-lang') || 'th';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'th' ? 'en' : 'th';
+            localStorage.setItem('elite-lang', currentLang);
+            updateLanguage();
+            renderApp();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById('lang-display').innerText = currentLang.toUpperCase();
+
+            // Update static text elements
+            document.querySelector('h1').innerText = t.title;
+            const studentInput = document.querySelector('#addStudentForm input');
+            if (studentInput) studentInput.placeholder = t.addStudentPlaceholder;
+
+            // Update Stats Labels
+            const statsLabels = document.querySelectorAll('.glass-panel .text-sm.font-medium');
+            if (statsLabels.length >= 3) {
+                statsLabels[0].innerText = t.totalStudents;
+                statsLabels[1].innerText = t.completionRate;
+                statsLabels[2].innerText = t.pendingTasks;
+            }
+
+            // Update Manage Button
+            const manageBtn = document.querySelector('button[onclick="openManageModal()"] span');
+            if (manageBtn) manageBtn.innerText = t.manage;
+
+            // Update Subject Label
+            const subjectLabel = document.querySelector('.text-xs.uppercase.tracking-\\[0\\.2em\\]');
+            if (subjectLabel) subjectLabel.innerText = t.selectedSubject;
+        }
+
+        // Initialize Language
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLanguage();
+        });
+
         const STORAGE_KEY = 'elite-tracker-data';
         const defaultData = {
             subjects: [
@@ -400,9 +536,10 @@
         }
 
         function renderTabs() {
+            const t = translations[currentLang];
             const tabs = document.getElementById('subjectTabs');
             if (!appData.subjects.length) {
-                tabs.innerHTML = '<div class="text-sm text-rose-500 font-medium bg-rose-50 dark:bg-rose-900/20 px-4 py-2 rounded-xl">โปรดเพิ่มวิชาอย่างน้อย 1 วิชา</div>';
+                tabs.innerHTML = `<div class="text-sm text-rose-500 font-medium bg-rose-50 dark:bg-rose-900/20 px-4 py-2 rounded-xl">${t.noSubjects}</div>`;
                 return;
             }
             tabs.innerHTML = appData.subjects.map(sub => {
@@ -420,10 +557,11 @@
         }
 
         function renderMobileCards() {
+            const t = translations[currentLang];
             const container = document.getElementById('mobileCards');
             const subject = currentSubject();
             if (!subject) {
-                container.innerHTML = '<div class="text-sm text-rose-500 text-center py-8">ยังไม่มีข้อมูลวิชา</div>';
+                container.innerHTML = `<div class="text-sm text-rose-500 text-center py-8">${t.noData}</div>`;
                 return;
             }
 
@@ -431,7 +569,7 @@
                 const missing = subject.assignments.filter(a => student.missing.includes(a.id));
                 const missingCount = missing.length;
                 const total = subject.assignments.length || 0;
-                const statusText = total === 0 ? 'ไม่มีงาน' : missingCount === 0 ? 'ครบแล้ว' : `${missingCount} งานค้าง`;
+                const statusText = total === 0 ? t.noWork : missingCount === 0 ? t.complete : `${missingCount} ${t.pending}`;
                 const statusClass = missingCount === 0
                     ? 'bg-emerald-500 text-white shadow-emerald-500/30'
                     : 'bg-amber-500 text-white shadow-amber-500/30';
@@ -456,8 +594,8 @@
                                 </div>
                             </div>
                         </button>
-                        <div id="card-content-${student.id}" class="hidden border-t border-white/20 dark:border-white/5 bg-white/30 dark:bg-black/20 backdrop-blur-md">
-                            <div class="p-4 grid grid-cols-1 gap-3">
+                        <div id="card-content-${student.id}" class="accordion-wrapper border-t border-white/20 dark:border-white/5 bg-white/30 dark:bg-black/20 backdrop-blur-md">
+                            <div class="accordion-inner p-4 grid grid-cols-1 gap-3">
                                 ${subject.assignments.map(a => `
                                     <label class="flex items-center gap-4 p-3 rounded-xl border transition-all duration-200 cursor-pointer group ${student.missing.includes(a.id)
                         ? 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10'
@@ -483,6 +621,7 @@
         }
 
         function renderTable() {
+            const t = translations[currentLang];
             const tbody = document.getElementById('studentTableBody');
             const subject = currentSubject();
             if (!subject) {
@@ -519,16 +658,16 @@
                             <span class="px-3 py-1 text-xs font-bold rounded-full shadow-sm ${missingCount === 0
                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
                         : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'}">
-                                ${missingCount === 0 ? 'ครบแล้ว' : `ค้าง ${missingCount} งาน`}
+                                ${missingCount === 0 ? t.complete : `${missingCount} ${t.pending}`}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button title="Mark all complete" onclick="markAllComplete(${student.id})"
+                                <button title="${t.markAll}" onclick="markAllComplete(${student.id})"
                                     class="p-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"><i data-lucide="check-circle" class="w-4 h-4"></i></button>
-                                <button title="แก้ไขชื่อ" onclick="editStudent(${student.id})"
+                                <button title="${t.editName}" onclick="editStudent(${student.id})"
                                     class="p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-800 hover:text-white transition-all shadow-sm"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                                <button title="ลบ" onclick="removeStudent(${student.id})"
+                                <button title="${t.delete}" onclick="removeStudent(${student.id})"
                                     class="p-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all shadow-sm"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </td>
@@ -592,6 +731,7 @@
 
         function handleAddStudent(e) {
             e.preventDefault();
+            const t = translations[currentLang];
             const input = document.getElementById('studentName');
             const name = input.value.trim();
             if (!name) return;
@@ -602,7 +742,7 @@
             saveData();
             renderApp();
             input.value = '';
-            showToast('เพิ่มนักเรียนแล้ว');
+            showToast(t.studentAdded);
         }
 
         function toggleMissing(studentId, assignmentId) {
@@ -618,6 +758,7 @@
         }
 
         function markAllComplete(studentId) {
+            const t = translations[currentLang];
             const subject = currentSubject();
             const student = appData.students.find(s => s.id === studentId);
             if (!student || !subject) return;
@@ -626,27 +767,29 @@
             });
             saveData();
             renderApp();
-            showToast('ทำงานครบทั้งหมดแล้ว');
+            showToast(t.allComplete);
         }
 
         function removeStudent(id) {
-            showConfirmModal('ลบนักเรียน?', 'การลบนี้ไม่สามารถย้อนกลับได้', () => {
+            const t = translations[currentLang];
+            showConfirmModal(t.deleteStudent, t.deleteIrreversible, () => {
                 appData.students = appData.students.filter(s => s.id !== id);
                 saveData();
                 renderApp();
-                showToast('ลบนักเรียนแล้ว', 'error');
+                showToast(t.studentDeleted, 'error');
             });
         }
 
         function editStudent(id) {
+            const t = translations[currentLang];
             const student = appData.students.find(s => s.id === id);
             if (!student) return;
-            const newName = prompt('แก้ไขชื่อนักเรียน', student.name);
+            const newName = prompt(t.editStudentName, student.name);
             if (newName && newName.trim() !== '') {
                 student.name = newName.trim();
                 saveData();
                 renderApp();
-                showToast('อัปเดตชื่อแล้ว');
+                showToast(t.nameUpdated);
             }
         }
 
@@ -660,6 +803,7 @@
         }
 
         function openStudentModal(id) {
+            const t = translations[currentLang];
             const student = appData.students.find(s => s.id === id);
             const subject = currentSubject();
             if (!student || !subject) return;
@@ -696,7 +840,7 @@
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center flex-col">
                                 <span class="text-2xl font-bold text-slate-800 dark:text-white">${progress}%</span>
-                                <span class="text-[10px] uppercase tracking-wider text-gray-400">Complete</span>
+                                <span class="text-[10px] uppercase tracking-wider text-gray-400">${t.completeLabel}</span>
                             </div>
                         </div>
                     </div>
@@ -722,7 +866,7 @@
                 </div>
                 <div class="p-6 border-t border-gray-100 dark:border-white/10 bg-white dark:bg-[#09090b]">
                     <button onclick="markAllComplete(${student.id}); closeStudentModal()"
-                        class="w-full py-4 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold shadow-lg shadow-gold-500/20 hover:shadow-gold-500/40 transition-all btn-premium">Mark All Complete</button>
+                        class="w-full py-4 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold shadow-lg shadow-gold-500/20 hover:shadow-gold-500/40 transition-all btn-premium">${t.markAll}</button>
                 </div>
             `;
 
