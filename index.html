@@ -537,12 +537,6 @@
                             class="w-full pl-10 pr-4 py-2.5 rounded-full input-glass text-sm font-medium placeholder:text-muted-foreground/70">
                     </div>
 
-                    <button onclick="generatePDFReport()"
-                        class="w-10 h-10 rounded-full bg-white dark:bg-white/10 border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
-                        title="Download Report">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
-                    </button>
-
                     <button onclick="document.getElementById('addStudentInput').focus()"
                         class="w-10 h-10 rounded-full bg-white dark:bg-white/10 border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
                         <i data-lucide="plus" class="w-5 h-5"></i>
@@ -657,6 +651,15 @@
         </div>
     </div>
 
+    <!-- Footer Credit -->
+    <div class="py-6 text-center">
+        <p
+            class="text-xs font-medium text-muted-foreground/50 uppercase tracking-widest hover:text-primary transition-colors cursor-default">
+            Designed by Suphakrit
+        </p>
+    </div>
+    </div>
+
     <!-- Manage Modal -->
     <div id="manageModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm animate-enter" onclick="closeModal('manageModal')">
@@ -676,7 +679,7 @@
             </div>
             <div class="p-6 border-t border-white/10 bg-muted/30 shrink-0">
                 <form onsubmit="handleAddSubject(event)" class="flex gap-3">
-                    <input id="newSubjectInput" type="text" placeholder="New Subject Name"
+                    <input id="newSubjectInput" name="name" type="text" placeholder="New Subject Name"
                         class="flex-1 input-glass px-4 py-2 rounded-xl" required>
                     <button type="submit"
                         class="px-6 py-2 rounded-xl bg-primary text-white font-bold shadow-glow hover:bg-primary/90 transition-all">Add</button>
