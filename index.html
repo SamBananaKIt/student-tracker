@@ -234,6 +234,49 @@
             background: rgba(0, 0, 0, 0.4);
         }
 
+        input:focus::placeholder {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Spotlight Effect */
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.1), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Typewriter Cursor */
+        .typewriter-cursor::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+            color: currentColor;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
         /* Progress Ring */
         .progress-ring__circle {
             transition: stroke-dashoffset 0.5s ease-in-out;
@@ -250,10 +293,121 @@
         .toggle-checkbox:checked+.toggle-label {
             background-color: #68D391;
         }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.75rem;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Floating Particles */
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float-particle 20s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            90% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Rainbow Mode */
+        .rainbow-mode .aurora-bg {
+            filter: hue-rotate(0deg);
+            animation: rainbow-cycle 5s linear infinite alternate !important;
+        }
+
+        @keyframes rainbow-cycle {
+            from {
+                filter: hue-rotate(0deg);
+            }
+
+            to {
+                filter: hue-rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body class="text-foreground antialiased min-h-screen flex flex-col">
+    <!-- Skeleton Screen -->
+    <div id="skeleton-screen" class="fixed inset-0 z-[60] bg-background flex flex-col transition-opacity duration-500">
+        <div class="aurora-bg"></div>
+        <!-- Header Skeleton -->
+        <div class="h-16 border-b border-white/10 glass flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 skeleton"></div>
+                <div class="w-24 h-6 skeleton"></div>
+            </div>
+            <div class="flex gap-2">
+                <div class="w-8 h-8 skeleton rounded-full"></div>
+                <div class="w-8 h-8 skeleton rounded-full"></div>
+            </div>
+        </div>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <!-- Stats Skeleton -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="h-32 skeleton rounded-2xl"></div>
+                <div class="h-32 skeleton rounded-2xl"></div>
+                <div class="h-32 skeleton rounded-2xl"></div>
+            </div>
+            <!-- Tabs Skeleton -->
+            <div class="flex gap-4">
+                <div class="w-24 h-10 skeleton rounded-full"></div>
+                <div class="w-24 h-10 skeleton rounded-full"></div>
+                <div class="w-24 h-10 skeleton rounded-full"></div>
+            </div>
+            <!-- List Skeleton -->
+            <div class="space-y-4">
+                <div class="h-20 skeleton rounded-xl"></div>
+                <div class="h-20 skeleton rounded-xl"></div>
+                <div class="h-20 skeleton rounded-xl"></div>
+                <div class="h-20 skeleton rounded-xl"></div>
+            </div>
+        </main>
+    </div>
+
     <div class="aurora-bg"></div>
 
     <!-- Header -->
@@ -320,17 +474,27 @@
             <!-- Completion Rate -->
             <div class="glass-card rounded-2xl p-6 relative overflow-hidden animate-enter"
                 style="animation-delay: 0.2s;">
-                <div class="absolute top-0 right-0 p-4 opacity-10">
-                    <i data-lucide="pie-chart" class="w-24 h-24 text-success"></i>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center text-success">
-                        <i data-lucide="activity" class="w-6 h-6"></i>
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center text-success">
+                            <i data-lucide="activity" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-muted-foreground font-medium" data-i18n="completionRate">Completion
+                                Rate</p>
+                            <h3 class="text-3xl font-display font-bold mt-1" id="stat-completion-rate">0%</h3>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-muted-foreground font-medium" data-i18n="completionRate">Completion Rate
-                        </p>
-                        <h3 class="text-3xl font-display font-bold mt-1" id="stat-completion-rate">0%</h3>
+
+                    <!-- Donut Chart -->
+                    <div class="relative w-20 h-20">
+                        <svg class="w-full h-full transform -rotate-90 drop-shadow-[0_0_8px_rgba(76,211,149,0.4)]">
+                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="8" fill="transparent"
+                                class="text-muted/20" />
+                            <circle id="completion-ring" cx="40" cy="40" r="36" stroke="currentColor" stroke-width="8"
+                                fill="transparent" class="text-success transition-all duration-1000 ease-out"
+                                stroke-dasharray="226.2" stroke-dashoffset="226.2" stroke-linecap="round" />
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -455,6 +619,7 @@
                 <div class="space-y-3">
                     <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sort By</label>
                     <select id="sortSelect" class="w-full p-2.5 rounded-lg input-glass text-sm">
+                        <option value="manual">Custom Order</option>
                         <option value="name">Name (A-Z)</option>
                         <option value="progress-asc">Progress (Low to High)</option>
                         <option value="progress-desc">Progress (High to Low)</option>
@@ -531,11 +696,21 @@
             </div>
             <div class="p-6 space-y-4">
                 <input type="hidden" id="editStudentId">
-                <div class="flex justify-center mb-4">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold text-white shadow-glow"
-                        id="editStudentAvatar">
-                        A
+                <div class="flex flex-col items-center gap-3 mb-4">
+                    <div class="relative group cursor-pointer"
+                        onclick="document.getElementById('avatarUpload').click()">
+                        <div id="editStudentAvatar"
+                            class="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold text-white shadow-glow overflow-hidden object-cover">
+                            <!-- Avatar Image or Initials will be set here -->
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+                        </div>
                     </div>
+                    <input type="file" id="avatarUpload" accept="image/*" class="hidden"
+                        onchange="handleAvatarUpload(event)">
+                    <p class="text-xs text-muted-foreground">Click to change avatar</p>
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-muted-foreground uppercase">Name</label>
@@ -548,8 +723,9 @@
                 </div>
                 <div class="pt-4">
                     <button onclick="deleteStudentFromEdit()"
-                        class="w-full py-2.5 rounded-xl border border-error/30 text-error hover:bg-error/10 transition-colors text-sm font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Student
+                        class="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group">
+                        <i data-lucide="trash-2" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i> Delete
+                        Student
                     </button>
                 </div>
             </div>
@@ -618,11 +794,29 @@
     <div id="studentDetailModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('studentDetailModal')"></div>
         <div
-            class="relative w-full max-w-xl mx-4 glass-card rounded-2xl overflow-hidden shadow-2xl animate-enter flex flex-col max-h-[85vh]">
-            <div id="studentDetailContent" class="flex flex-col h-full">
+            class="relative w-full max-w-xl mx-4 glass-card rounded-2xl overflow-hidden shadow-2xl animate-enter flex flex-col max-h-[85dvh]">
+            <div id="studentDetailContent" class="flex flex-col h-full overflow-hidden">
                 <!-- Content injected via JS -->
             </div>
         </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="contextMenu"
+        class="fixed z-[100] hidden min-w-[160px] glass-card rounded-xl overflow-hidden shadow-2xl animate-enter origin-top-left">
+        <button onclick="handleContextAction('edit')"
+            class="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2">
+            <i data-lucide="pencil" class="w-4 h-4"></i> Edit
+        </button>
+        <button onclick="handleContextAction('complete')"
+            class="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-success/10 hover:text-success transition-colors flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i> Mark All
+        </button>
+        <div class="h-px bg-border my-1"></div>
+        <button onclick="handleContextAction('delete')"
+            class="w-full text-left px-4 py-2.5 text-sm font-medium text-error hover:bg-error/10 transition-colors flex items-center gap-2">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+        </button>
     </div>
 
     <!-- Toast Container -->
@@ -675,6 +869,22 @@
                 setTimeout(() => this.playTone(800, 'sine', 0.1, 0.1), 100);
                 setTimeout(() => this.playTone(1200, 'sine', 0.3, 0.1), 200);
             },
+            playDelete() {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            },
             playError() { this.playTone(300, 'sawtooth', 0.3, 0.1); }
         };
 
@@ -685,9 +895,19 @@
             sort: 'name' // name, progress-asc, progress-desc, missing
         };
         let selectedStudents = new Set();
+        let contextMenuTargetId = null;
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Remove Skeleton
+            setTimeout(() => {
+                const skeleton = document.getElementById('skeleton-screen');
+                if (skeleton) {
+                    skeleton.style.opacity = '0';
+                    setTimeout(() => skeleton.remove(), 500);
+                }
+            }, 800);
+
             applyTheme(appData.settings.theme);
             renderApp();
 
@@ -710,6 +930,222 @@
                     renderStudentList();
                 });
             });
+
+            // Spotlight Effect
+            document.addEventListener('mousemove', e => {
+                const card = e.target.closest('.spotlight-card');
+                if (card) {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                }
+            });
+
+            // Declare logo once for reuse
+            const logo = document.querySelector('header h1');
+
+            // Typewriter Intro
+            if (logo) {
+                const text = logo.innerText;
+                logo.innerText = '';
+                logo.classList.add('typewriter-cursor');
+
+                let i = 0;
+                const typeInterval = setInterval(() => {
+                    logo.innerText += text.charAt(i);
+                    i++;
+                    if (i >= text.length) {
+                        clearInterval(typeInterval);
+                        setTimeout(() => logo.classList.remove('typewriter-cursor'), 1000);
+                    }
+                }, 150);
+            }
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Search: /
+                if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+
+                // Close Modals: Escape
+                if (e.key === 'Escape') {
+                    ['manageModal', 'editStudentModal', 'studentDetailModal', 'exportModal'].forEach(id => closeModal(id));
+                    const filterContent = document.getElementById('filterContent');
+                    if (filterContent && !filterContent.classList.contains('translate-x-full')) toggleFilterPanel();
+                    document.getElementById('contextMenu').classList.add('hidden');
+                }
+
+                // Save: Ctrl+Enter
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    if (!document.getElementById('editStudentModal').classList.contains('hidden')) {
+                        saveStudentDetails();
+                    } else if (document.activeElement === document.getElementById('addStudentInput')) {
+                        document.getElementById('addStudentForm').requestSubmit();
+                    }
+                }
+            });
+
+            // Context Menu Listeners
+            document.addEventListener('contextmenu', e => {
+                const card = e.target.closest('.spotlight-card');
+                if (card) {
+                    e.preventDefault();
+                    const btn = card.querySelector('button[onclick*="openStudentDetail"]');
+                    if (btn) {
+                        const match = btn.getAttribute('onclick').match(/openStudentDetail\((\d+)\)/);
+                        if (match) {
+                            contextMenuTargetId = parseInt(match[1]);
+                            showContextMenu(e.clientX, e.clientY);
+                        }
+                    }
+                }
+            });
+
+            document.addEventListener('click', () => {
+                const menu = document.getElementById('contextMenu');
+                if (!menu.classList.contains('hidden')) menu.classList.add('hidden');
+            });
+
+            // Konami Code
+            const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+            let konamiIndex = 0;
+            document.addEventListener('keydown', e => {
+                if (e.key === konamiCode[konamiIndex]) {
+                    konamiIndex++;
+                    if (konamiIndex === konamiCode.length) {
+                        toggleRainbowMode();
+                        konamiIndex = 0;
+                    }
+                } else {
+                    konamiIndex = 0;
+                }
+            });
+
+            // Mobile Secret Mode (Tap Logo 7 times)
+            let logoTaps = 0;
+            let logoTapTimer;
+            // logo is already defined above
+            if (logo) {
+                logo.style.cursor = 'pointer';
+                logo.addEventListener('click', () => {
+                    logoTaps++;
+                    clearTimeout(logoTapTimer);
+                    logoTapTimer = setTimeout(() => logoTaps = 0, 500);
+
+                    if (logoTaps === 7) {
+                        toggleRainbowMode();
+                        logoTaps = 0;
+                    }
+                });
+            }
+
+            // Drag & Drop Sorting
+            const listContainer = document.getElementById('studentListContainer');
+            let draggedItem = null;
+
+            listContainer.addEventListener('dragstart', e => {
+                draggedItem = e.target.closest('[draggable]');
+                if (draggedItem) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', draggedItem.dataset.id);
+                    draggedItem.classList.add('opacity-50', 'scale-95');
+                }
+            });
+
+            listContainer.addEventListener('dragend', e => {
+                if (draggedItem) {
+                    draggedItem.classList.remove('opacity-50', 'scale-95');
+                    draggedItem = null;
+                }
+            });
+
+            listContainer.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(listContainer, e.clientY);
+                const currentDraggable = document.querySelector('.opacity-50'); // The one being dragged
+                if (currentDraggable) {
+                    if (afterElement == null) {
+                        listContainer.appendChild(currentDraggable);
+                    } else {
+                        listContainer.insertBefore(currentDraggable, afterElement);
+                    }
+                }
+            });
+
+            listContainer.addEventListener('drop', e => {
+                e.preventDefault();
+
+                // Update Data Model
+                const newOrderIds = Array.from(listContainer.children).map(child => parseInt(child.dataset.id)).filter(id => !isNaN(id));
+
+                if (newOrderIds.length > 0) {
+                    const reorderedStudents = [];
+                    const idMap = new Map(appData.students.map(s => [s.id, s]));
+
+                    newOrderIds.forEach(id => {
+                        if (idMap.has(id)) {
+                            reorderedStudents.push(idMap.get(id));
+                            idMap.delete(id);
+                        }
+                    });
+
+                    // Append remaining (filtered out) students
+                    idMap.forEach(student => reorderedStudents.push(student));
+
+                    appData.students = reorderedStudents;
+
+                    // Switch to Manual Sort
+                    document.getElementById('sortSelect').value = 'manual';
+                    filterState.sort = 'manual';
+
+                    saveData();
+                    showToast('Order updated');
+                }
+            });
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('[draggable]:not(.opacity-50)')];
+
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+            // Floating Particles
+            const particlesContainer = document.createElement('div');
+            particlesContainer.id = 'particles-container';
+            document.body.prepend(particlesContainer);
+
+            for (let i = 0; i < 20; i++) {
+                createParticle();
+            }
+
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                particle.style.animationDelay = `-${Math.random() * 20}s`;
+                particlesContainer.appendChild(particle);
+            }
+
+            function toggleRainbowMode() {
+                document.body.classList.toggle('rainbow-mode');
+                try { SoundManager.playSuccess(); } catch (e) { }
+                showToast(document.body.classList.contains('rainbow-mode') ? '🌈 Party Mode ON!' : 'Party Mode OFF');
+            }
         });
 
         // --- Core Functions ---
@@ -784,7 +1220,29 @@
             document.getElementById('stat-total-students').innerText = totalStudents;
             document.getElementById('stat-completion-rate').innerText = rate + '%';
             document.getElementById('stat-pending-tasks').innerText = totalMissing;
+
+            // Update Donut Chart
+            const circle = document.getElementById('completion-ring');
+            if (circle) {
+                const circumference = 226.2;
+                const offset = circumference - (rate / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+            }
         }
+
+        const gradients = [
+            'from-red-500 to-orange-500', 'from-orange-500 to-amber-500', 'from-amber-500 to-yellow-500',
+            'from-yellow-500 to-lime-500', 'from-lime-500 to-green-500', 'from-green-500 to-emerald-500',
+            'from-emerald-500 to-teal-500', 'from-teal-500 to-cyan-500', 'from-cyan-500 to-sky-500',
+            'from-sky-500 to-blue-500', 'from-blue-500 to-indigo-500', 'from-indigo-500 to-violet-500',
+            'from-violet-500 to-purple-500', 'from-purple-500 to-fuchsia-500', 'from-fuchsia-500 to-pink-500',
+            'from-pink-500 to-rose-500'
+        ];
+        const getGradient = (name) => {
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            return gradients[Math.abs(hash) % gradients.length];
+        };
 
         function renderStudentList() {
             const container = document.getElementById('studentListContainer');
@@ -815,12 +1273,13 @@
 
             // Sort
             students.sort((a, b) => {
+                const total = subject.assignments.length;
                 const missingA = a.missing.filter(m => subject.assignments.some(x => x.id === m)).length;
                 const missingB = b.missing.filter(m => subject.assignments.some(x => x.id === m)).length;
-                const total = subject.assignments.length;
                 const progressA = total === 0 ? 0 : (total - missingA) / total;
                 const progressB = total === 0 ? 0 : (total - missingB) / total;
 
+                if (filterState.sort === 'manual') return 0; // Keep array order
                 if (filterState.sort === 'name') return a.name.localeCompare(b.name);
                 if (filterState.sort === 'progress-asc') return progressA - progressB;
                 if (filterState.sort === 'progress-desc') return progressB - progressA;
@@ -838,20 +1297,6 @@
                 document.getElementById('emptyState').classList.remove('flex');
             }
 
-            const gradients = [
-                'from-red-500 to-orange-500', 'from-orange-500 to-amber-500', 'from-amber-500 to-yellow-500',
-                'from-yellow-500 to-lime-500', 'from-lime-500 to-green-500', 'from-green-500 to-emerald-500',
-                'from-emerald-500 to-teal-500', 'from-teal-500 to-cyan-500', 'from-cyan-500 to-sky-500',
-                'from-sky-500 to-blue-500', 'from-blue-500 to-indigo-500', 'from-indigo-500 to-violet-500',
-                'from-violet-500 to-purple-500', 'from-purple-500 to-fuchsia-500', 'from-fuchsia-500 to-pink-500',
-                'from-pink-500 to-rose-500'
-            ];
-            const getGradient = (name) => {
-                let hash = 0;
-                for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-                return gradients[Math.abs(hash) % gradients.length];
-            };
-
             container.innerHTML = students.map((student, index) => {
                 const missingCount = student.missing.filter(m => subject.assignments.some(a => a.id === m)).length;
                 const total = subject.assignments.length;
@@ -859,12 +1304,33 @@
                 const isComplete = missingCount === 0;
                 const isSelected = selectedStudents.has(student.id);
 
+                // Highlight Name
+                let displayName = student.name;
+                if (filterState.search) {
+                    const regex = new RegExp(`(${filterState.search})`, 'gi');
+                    displayName = student.name.replace(regex, '<span class="bg-primary/20 text-primary rounded px-0.5">$1</span>');
+                }
+
+                // Achievement Badges
+                let badge = '';
+                if (progress === 100) badge = '<span title="Master" class="text-lg">🏆</span>';
+                else if (progress >= 80) badge = '<span title="Rising Star" class="text-lg">🌟</span>';
+                else if (progress >= 50) badge = '<span title="On Track" class="text-lg">🔥</span>';
+
+                // Avatar Logic
+                let avatarHTML = '';
+                if (student.avatar) {
+                    avatarHTML = `<img src="${student.avatar}" class="w-full h-full object-cover">`;
+                } else {
+                    avatarHTML = student.name.charAt(0);
+                }
+
                 return `
-                    <div class="glass-card rounded-xl p-4 flex items-center justify-between gap-4 group animate-enter ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}" style="animation-delay: ${index * 0.05}s">
+                    <div draggable="true" data-id="${student.id}" class="glass-card spotlight-card rounded-xl p-4 flex items-center justify-between gap-4 group animate-enter ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}" style="animation-delay: ${index * 0.05}s">
                         <div class="flex items-center gap-4 flex-1 min-w-0">
                             <div class="relative">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br ${getGradient(student.name)} flex items-center justify-center text-sm font-bold text-white shadow-inner transition-opacity ${isSelected ? 'opacity-0' : 'opacity-100'}">
-                                    ${student.name.charAt(0)}
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br ${getGradient(student.name)} flex items-center justify-center text-sm font-bold text-white shadow-inner transition-opacity ${isSelected ? 'opacity-0' : 'opacity-100'} overflow-hidden">
+                                    ${avatarHTML}
                                 </div>
                                 <div class="absolute inset-0 flex items-center justify-center transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0'}">
                                      <input type="checkbox" checked onchange="toggleSelection(${student.id})" class="w-5 h-5 text-primary border-border rounded focus:ring-primary cursor-pointer">
@@ -875,7 +1341,10 @@
                             </div>
                             
                             <div class="min-w-0">
-                                <h4 class="font-bold text-foreground truncate group-hover:text-primary transition-colors cursor-pointer" onclick="openStudentDetail(${student.id})">${student.name}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-foreground truncate group-hover:text-primary transition-colors cursor-pointer" onclick="openStudentDetail(${student.id})">${displayName}</h4>
+                                    ${badge}
+                                </div>
                                 <div class="flex items-center gap-2 mt-1">
                                     <div class="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                                         <div class="h-full rounded-full ${isComplete ? 'bg-success shadow-glow-success' : 'bg-primary'}" style="width: ${progress}%"></div>
@@ -896,7 +1365,7 @@
                                 <button onclick="openStudentDetail(${student.id})" class="p-2 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors" title="View Details">
                                     <i data-lucide="eye" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="openEditStudent(${student.id})" class="p-2 rounded-lg hover:bg-muted transition-colors" title="Edit">
+                                <button onclick="openEditStudentModal(${student.id})" class="p-2 rounded-lg hover:bg-muted transition-colors" title="Edit">
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -959,7 +1428,7 @@
         function batchDelete() {
             if (!confirm(`Delete ${selectedStudents.size} students?`)) return;
 
-            SoundManager.playError(); // Added Sound
+            SoundManager.playDelete(); // Added Sound
             appData.students = appData.students.filter(s => !selectedStudents.has(s.id));
             saveData();
             renderApp();
@@ -1046,8 +1515,39 @@
 
         function closeModal(id) {
             const modal = document.getElementById(id);
-            modal.classList.add('hidden');
-            toggleBodyScroll(false);
+            if (!modal || modal.classList.contains('hidden')) return;
+
+            const backdrop = modal.querySelector('div[onclick*="closeModal"]');
+            const content = modal.querySelector('.glass-card');
+
+            if (backdrop) {
+                backdrop.classList.add('transition-opacity', 'duration-300', 'ease-in-out');
+                backdrop.style.opacity = '0';
+            }
+
+            if (content) {
+                content.classList.remove('animate-enter');
+                content.classList.add('transition-all', 'duration-300', 'ease-in-out');
+                content.style.opacity = '0';
+                content.style.transform = 'scale(0.95)';
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                toggleBodyScroll(false);
+
+                // Reset styles for next open
+                if (backdrop) {
+                    backdrop.classList.remove('transition-opacity', 'duration-300', 'ease-in-out');
+                    backdrop.style.opacity = '';
+                }
+                if (content) {
+                    content.classList.remove('transition-all', 'duration-300', 'ease-in-out');
+                    content.style.opacity = '';
+                    content.style.transform = '';
+                    content.classList.add('animate-enter');
+                }
+            }, 300);
         }
 
         function toggleFilterPanel() {
@@ -1172,7 +1672,7 @@
 
         function deleteSubject(id) {
             if (!confirm('Delete this subject and all its tasks?')) return;
-            try { SoundManager.playError(); } catch (e) { console.warn(e); }
+            try { SoundManager.playDelete(); } catch (e) { console.warn(e); }
 
             appData.subjects = appData.subjects.filter(s => s.id !== id);
             if (appData.currentSubjectId === id) appData.currentSubjectId = appData.subjects[0]?.id || null;
@@ -1213,7 +1713,7 @@
 
         function deleteAssignment(subId, assignId) {
             if (!confirm('Delete this task?')) return;
-            try { SoundManager.playError(); } catch (e) { console.warn(e); }
+            try { SoundManager.playDelete(); } catch (e) { console.warn(e); }
 
             const sub = appData.subjects.find(s => s.id === subId);
             if (sub) {
@@ -1223,6 +1723,16 @@
                 renderManageList();
                 renderApp();
                 showToast('Task deleted');
+            }
+        }
+
+        function toggleBodyScroll(lock) {
+            if (lock) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.height = '100dvh';
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.height = '';
             }
         }
 
@@ -1239,7 +1749,7 @@
 
             // Initial Render of Structure
             content.innerHTML = `
-                <div class="p-6 border-b border-white/10 flex justify-between items-start bg-gradient-to-r from-primary/10 to-transparent">
+                <div class="p-6 border-b border-white/10 flex justify-between items-start bg-gradient-to-r from-primary/10 to-transparent shrink-0">
                     <div>
                         <h2 class="text-2xl font-display font-bold">${student.name}</h2>
                         <div class="flex items-center gap-2 mt-1">
@@ -1250,7 +1760,7 @@
                     <button onclick="closeModal('studentDetailModal')" class="p-2 hover:bg-white/10 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="flex-1 overflow-y-auto p-6 space-y-6 overscroll-contain">
                     <!-- Progress Circle -->
                     <div class="flex flex-col items-center justify-center py-4">
                         <div class="relative w-32 h-32">
@@ -1277,7 +1787,7 @@
                     </div>
                 </div>
                 
-                <div class="p-4 border-t border-white/10 bg-muted/30">
+                <div class="p-4 border-t border-white/10 bg-muted/30 shrink-0">
                     <button onclick="markAllComplete(${student.id})" class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-glow hover:bg-primary/90 transition-all">
                         Mark All Complete
                     </button>
@@ -1350,7 +1860,13 @@
             // Update List
             const listContainer = document.getElementById('detail-task-list');
             if (listContainer) {
-                listContainer.innerHTML = subject.assignments.map(a => {
+                const sortedAssignments = [...subject.assignments].sort((a, b) => {
+                    const isMissingA = student.missing.includes(a.id);
+                    const isMissingB = student.missing.includes(b.id);
+                    return (isMissingA === isMissingB) ? 0 : isMissingA ? -1 : 1;
+                });
+
+                listContainer.innerHTML = sortedAssignments.map(a => {
                     const isMissing = student.missing.includes(a.id);
                     const isOverdue = isMissing && a.dueDate && new Date(a.dueDate) < new Date().setHours(0, 0, 0, 0);
 
@@ -1390,14 +1906,23 @@
         function toggleTask(studentId, assignId) {
             const student = appData.students.find(s => s.id === studentId);
             if (!student) return;
+            const subject = currentSubject();
 
             SoundManager.playPop();
             if (student.missing.includes(assignId)) {
                 student.missing = student.missing.filter(m => m !== assignId);
-                // Check if now complete
-                if (student.missing.length === 0) {
+
+                // Check if all tasks for CURRENT SUBJECT are complete
+                const remainingInSubject = student.missing.filter(m => subject.assignments.some(a => a.id === m));
+
+                if (remainingInSubject.length === 0) {
                     triggerConfetti();
                     SoundManager.playSuccess();
+
+                    // Auto-close modal after celebration
+                    setTimeout(() => {
+                        closeModal('studentDetailModal');
+                    }, 1500);
                 }
             } else {
                 student.missing.push(assignId);
@@ -1406,7 +1931,6 @@
             renderApp();
 
             // Smooth Update
-            const subject = currentSubject();
             updateStudentDetailUI(student, subject);
         }
 
@@ -1427,32 +1951,94 @@
         }
 
         // --- Edit Student Modal ---
-        function openEditStudent(id) {
+        let currentAvatarBase64 = null;
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Resize to max 150x150 for storage efficiency
+                    const maxSize = 150;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width *= maxSize / height;
+                            height = maxSize;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    currentAvatarBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+                    // Update Preview
+                    const avatarDiv = document.getElementById('editStudentAvatar');
+                    avatarDiv.innerHTML = `<img src="${currentAvatarBase64}" class="w-full h-full object-cover">`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openEditStudentModal(id) {
             const student = appData.students.find(s => s.id === id);
             if (!student) return;
 
             document.getElementById('editStudentId').value = student.id;
             document.getElementById('editStudentName').value = student.name;
-            document.getElementById('editStudentNote').value = student.note || '';
-            document.getElementById('editStudentAvatar').innerText = student.name.charAt(0);
+
+            // Reset Avatar State
+            currentAvatarBase64 = student.avatar || null;
+            const avatarDiv = document.getElementById('editStudentAvatar');
+
+            // Set Gradient Background
+            avatarDiv.className = `w-24 h-24 rounded-full bg-gradient-to-br ${getGradient(student.name)} flex items-center justify-center text-3xl font-bold text-white shadow-glow overflow-hidden object-cover`;
+
+            if (student.avatar) {
+                avatarDiv.innerHTML = `<img src="${student.avatar}" class="w-full h-full object-cover">`;
+            } else {
+                avatarDiv.innerHTML = student.name.charAt(0);
+            }
 
             document.getElementById('editStudentModal').classList.remove('hidden');
-            toggleBodyScroll(true);
+            lucide.createIcons();
         }
 
         function saveStudentDetails() {
             const id = parseInt(document.getElementById('editStudentId').value);
-            const name = document.getElementById('editStudentName').value.trim();
-            const note = document.getElementById('editStudentNote').value.trim();
+            const newName = document.getElementById('editStudentName').value.trim();
+
+            if (!newName) {
+                showToast('Name cannot be empty', 'error');
+                return;
+            }
 
             const student = appData.students.find(s => s.id === id);
-            if (student && name) {
-                student.name = name;
-                student.note = note;
+            if (student) {
+                student.name = newName;
+                if (currentAvatarBase64) {
+                    student.avatar = currentAvatarBase64;
+                }
                 saveData();
                 renderApp();
                 closeModal('editStudentModal');
-                showToast('Student updated');
+                showToast('Student updated successfully');
             }
         }
         function deleteStudentFromEdit() {
@@ -1467,7 +2053,7 @@
 
             if (confirm('Permanently delete this student?')) {
                 try {
-                    SoundManager.playError();
+                    SoundManager.playDelete();
                 } catch (e) { console.warn(e); }
 
                 // Find index using loose comparison to handle String/Number mismatch
@@ -1639,18 +2225,45 @@
 
         // --- Utils ---
         function toggleTheme() {
-            const newTheme = appData.settings.theme === 'dark' ? 'light' : 'dark';
-            appData.settings.theme = newTheme;
-            applyTheme(newTheme);
-            saveData();
+            const btn = document.getElementById('themeToggle');
+            const icon = btn.querySelector('svg') || btn.querySelector('i'); // Lucide renders SVG, but initially it's i
+
+            // Animate Icon
+            if (icon) {
+                icon.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                icon.style.transform = 'rotate(180deg) scale(0)';
+            }
+
+            setTimeout(() => {
+                const newTheme = appData.settings.theme === 'dark' ? 'light' : 'dark';
+                appData.settings.theme = newTheme;
+                applyTheme(newTheme);
+                saveData();
+
+                // Re-select icon after innerHTML update
+                const newIcon = btn.querySelector('svg');
+                if (newIcon) {
+                    newIcon.style.transform = 'rotate(-180deg) scale(0)';
+                    newIcon.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+
+                    // Trigger reflow
+                    void newIcon.offsetWidth;
+
+                    newIcon.style.transform = 'rotate(0deg) scale(1)';
+                }
+            }, 250);
         }
 
         function applyTheme(theme) {
+            const btn = document.getElementById('themeToggle');
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
+                if (btn) btn.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
             } else {
                 document.documentElement.classList.remove('dark');
+                if (btn) btn.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
             }
+            lucide.createIcons();
         }
 
         function showToast(msg, type = 'success') {
@@ -1667,6 +2280,39 @@
                 toast.style.transform = 'translateY(10px)';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // --- Context Menu ---
+        function showContextMenu(x, y) {
+            const menu = document.getElementById('contextMenu');
+            menu.classList.remove('hidden');
+
+            const rect = menu.getBoundingClientRect();
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+
+            if (x + rect.width > winWidth) x -= rect.width;
+            if (y + rect.height > winHeight) y -= rect.height;
+
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+        }
+
+        function handleContextAction(action) {
+            if (!contextMenuTargetId) return;
+
+            if (action === 'edit') openEditStudentModal(contextMenuTargetId);
+            if (action === 'complete') markAllComplete(contextMenuTargetId);
+            if (action === 'delete') {
+                if (confirm('Permanently delete this student?')) {
+                    try { SoundManager.playDelete(); } catch (e) { }
+                    appData.students = appData.students.filter(s => s.id !== contextMenuTargetId);
+                    saveData();
+                    renderApp();
+                    showToast('Student deleted');
+                }
+            }
+            document.getElementById('contextMenu').classList.add('hidden');
         }
     </script>
 </body>
